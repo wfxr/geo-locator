@@ -1,5 +1,7 @@
+import ch.hsr.geohash.BoundingBox
+
 class Boundary(private val regions: List<List<Point>>) {
-    private val boundingBox: BoundingBox = regions.let { vertices ->
+    val bBox: BoundingBox = regions.let { vertices ->
         val xMin = vertices.flatMap { it }.minBy { it.x }?.x ?: 0.0
         val xMax = vertices.flatMap { it }.maxBy { it.x }?.x ?: 0.0
         val yMin = vertices.flatMap { it }.minBy { it.y }?.y ?: 0.0
@@ -7,8 +9,8 @@ class Boundary(private val regions: List<List<Point>>) {
         BoundingBox(xMin, xMax, yMin, yMax)
     }
 
-    fun contains(p: Point): Boolean {
-        if (!boundingBox.contains(p)) return false
+    fun contains(p: WGSPoint): Boolean {
+        if (!bBox.contains(p)) return false
 
         regions.forEach { V ->
             var res = false

@@ -1,3 +1,4 @@
+import ch.hsr.geohash.BoundingBox
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
 import com.google.gson.JsonParser
@@ -23,19 +24,19 @@ private const val DEG_PER_RAD = Math.PI / 180
 
 fun gaodeDistrictsLoader(path: Path) =
         path.toFile().walk().filter { it.isFile }.map { file ->
-            try{
+            try {
                 val root = JsonParser().parse(file.bufferedReader()).obj
                 val adcode = root["adcode"].string.trim()
                 val name = root["name"].string.trim()
                 val center = root["center"].string.parseAsPointOrNull()
                 val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
                 val boundary = Boundary(regions)
-                adcode to District(adcode, name, center, boundary)
+                District(adcode, name, center, boundary)
             } catch (e: Exception) {
                 println(file.name)
                 throw e
             }
-        }.toMap()
+        }.toList()
 
 private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { Point(it[1], it[0]) }
 private fun String.parseAsPoints() = this.split(";").map { it.parseAsPoint() }
@@ -45,3 +46,5 @@ private fun String.parseAsPointOrNull() = try {
     null
 }
 
+fun BoundingBox.contains(p: WGSPoint) =
+        p.lat >= minLat && p.lon >= minLon && p.lat <= maxLat && p.lon <= maxLon
