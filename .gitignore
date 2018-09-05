@@ -1,0 +1,10 @@
+# For gradle
+.gradle
+build/
+
+# For intellij idea
+.idea/*
+!.idea/dictionaries/
+/target
+/out
+*.iml
