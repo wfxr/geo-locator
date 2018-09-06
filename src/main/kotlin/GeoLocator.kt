@@ -1,7 +1,7 @@
 import ch.hsr.geohash.BoundingBox
 import ch.hsr.geohash.GeoHash
 
-class GeoLookuper(districts: List<District>, private val precision: Int = 4) {
+class GeoLocator(districts: List<District>, private val precision: Int = 4) {
     private val bbox = BoundingBox(districts.minBy { it.bBox.minLat }!!.bBox.minLat,
                                    districts.maxBy { it.bBox.maxLat }!!.bBox.maxLat,
                                    districts.minBy { it.bBox.minLon }!!.bBox.minLon,
@@ -19,9 +19,9 @@ class GeoLookuper(districts: List<District>, private val precision: Int = 4) {
             districts
                 .filter { it.bBox.intersects(geoIter.boundingBox) }
                 .takeIf { it.isNotEmpty() }
-                ?.toMutableList()?.let { it ->
+                ?.toMutableList()?.let {
                     rs.merge(geoIter, it) { old, new ->
-                        old.addAll(new).let { old }
+                        old.apply { addAll(new) }
                     }
                 }
 
@@ -37,6 +37,14 @@ class GeoLookuper(districts: List<District>, private val precision: Int = 4) {
         rs
     }
 
+    val stat: Stat = geoHashMapping.values.let { candidates ->
+        val single = candidates.count { it.size == 1 }
+        val max = candidates.maxBy { it.size }!!.size
+        val all = candidates.sumBy { it.size }
+        val avg = all / candidates.size.toDouble()
+        Stat(single, all, max, avg)
+    }
+
     private fun possibleDistricts(p: WGSPoint): List<District> {
         val geoHash = GeoHash.withCharacterPrecision(p.lat, p.lon, precision)
         return geoHashMapping[geoHash] ?: listOf()
@@ -49,5 +57,7 @@ class GeoLookuper(districts: List<District>, private val precision: Int = 4) {
         if (candidates.size == 1) return candidates.first()
         return candidates.find { it.boundary.contains(p) }
     }
+
+    data class Stat(val single: Int, val all: Int, val max: Int, val avg: Double)
 }
 
