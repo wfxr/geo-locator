@@ -1,30 +1,26 @@
 import ch.hsr.geohash.BoundingBox
 
-class Boundary(private val regions: List<List<Point>>) {
+class Boundary(private val regions: List<Point>) {
     val bBox: BoundingBox = regions.let { vertices ->
-        val xMin = vertices.flatMap { it }.minBy { it.x }?.x ?: 0.0
-        val xMax = vertices.flatMap { it }.maxBy { it.x }?.x ?: 0.0
-        val yMin = vertices.flatMap { it }.minBy { it.y }?.y ?: 0.0
-        val yMax = vertices.flatMap { it }.maxBy { it.y }?.y ?: 0.0
+        val xMin = vertices.minBy { it.x }?.x ?: 0.0
+        val xMax = vertices.maxBy { it.x }?.x ?: 0.0
+        val yMin = vertices.minBy { it.y }?.y ?: 0.0
+        val yMax = vertices.maxBy { it.y }?.y ?: 0.0
         BoundingBox(xMin, xMax, yMin, yMax)
     }
 
     fun contains(p: WGSPoint): Boolean {
         if (!bBox.contains(p)) return false
 
-        regions.forEach { V ->
-            var res = false
-            var i = 0
-            var j = V.size - 1
-            while (i < V.size) {
-                if (V[i].y > p.y != V[j].y > p.y && p.x < (V[j].x - V[i].x) * (p.y - V[i].y) / (V[j].y - V[i].y) + V[i].x) {
-                    res = !res
-                }
-                j = i++
+        var res = false
+        var i = 0
+        var j = regions.size - 1
+        while (i < regions.size) {
+            if (regions[i].y > p.y != regions[j].y > p.y && p.x < (regions[j].x - regions[i].x) * (p.y - regions[i].y) / (regions[j].y - regions[i].y) + regions[i].x) {
+                res = !res
             }
-            if (res) return res
+            j = i++
         }
-
-        return false
+        return res
     }
 }

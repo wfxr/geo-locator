@@ -52,7 +52,7 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
 
     fun locate(p: WGSPoint) = possibleDistricts(p).find { it.boundary.contains(p) }
 
-    fun locateFast(p: WGSPoint): District? {
+    fun fastLocate(p: WGSPoint): District? {
         val candidates = possibleDistricts(p)
         if (candidates.size == 1) return candidates.first()
         return candidates.find { it.boundary.contains(p) }

@@ -30,13 +30,15 @@ fun gaodeDistrictsLoader(path: Path) =
                 val name = root["name"].string.trim()
                 val center = root["center"].string.parseAsPointOrNull()
                 val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
-                val boundary = Boundary(regions)
-                District(adcode, name, center, boundary)
+                regions.map {
+                    val boundary = Boundary(it)
+                    District(adcode, name, center, boundary)
+                }
             } catch (e: Exception) {
                 println(file.name)
                 throw e
             }
-        }.toList()
+        }.flatten().toList()
 
 private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { Point(it[1], it[0]) }
 private fun String.parseAsPoints() = this.split(";").map { it.parseAsPoint() }
