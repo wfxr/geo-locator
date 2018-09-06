@@ -1,10 +1,11 @@
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Paths
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
+@Suppress("unused_parameter")
 internal class GeoLocatorTest {
     companion object {
         val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region")))

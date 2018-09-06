@@ -4,6 +4,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Paths
 import java.util.*
 
+@Suppress("unused_parameter")
 internal class GeoLocatorBenchmark {
     companion object {
         val rand = Random()
