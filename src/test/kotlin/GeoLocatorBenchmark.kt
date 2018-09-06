@@ -7,7 +7,7 @@ import java.util.*
 internal class GeoLocatorBenchmark {
     companion object {
         val rand = Random()
-        val geoLocator: GeoLocator = GeoLocator(gaodeDistrictsLoader(Paths.get("/home/wenxuan/work/boundary/region")))
+        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region")))
         @Suppress("unused")
         @JvmStatic
         fun geoRange() = listOf(
@@ -33,7 +33,7 @@ internal class GeoLocatorBenchmark {
         repeat(1_000_000) {
             val lat = rand.nextDouble() * (latRange.second - latRange.first) + latRange.first
             val lon = rand.nextDouble() * (lonRange.second - lonRange.first) + lonRange.first
-            geoLocator.locate(WGSPoint(lat, lon))
+            geoLocator.fastLocate(WGSPoint(lat, lon))
         }
     }
 }

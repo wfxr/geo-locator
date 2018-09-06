@@ -1,7 +1,7 @@
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {
-    val districts = gaodeDistrictsLoader(Paths.get("/home/wenxuan/work/boundary/region"))
+    val districts = loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region"))
     val geoLocator = GeoLocator(districts, 4)
     println(geoLocator.stat)
     println(geoLocator.locate(WGSPoint(36.8092847021, 103.4912109375))) // 中国甘肃省永登县
