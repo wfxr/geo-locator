@@ -8,3 +8,6 @@ build/
 /target
 /out
 *.iml
+
+/scripts/districts
+/scripts/.env
