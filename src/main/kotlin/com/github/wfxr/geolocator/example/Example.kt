@@ -1,3 +1,8 @@
+package com.github.wfxr.geolocator.example
+
+import com.github.wfxr.geolocator.GeoLocator
+import com.github.wfxr.geolocator.WGSPoint
+import com.github.wfxr.geolocator.utils.loadDistrictsGaode
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {

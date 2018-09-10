@@ -1,6 +1,12 @@
+package com.github.wfxr.geolocator.utils
+
 import ch.hsr.geohash.BoundingBox
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
+import com.github.wfxr.geolocator.Boundary
+import com.github.wfxr.geolocator.District
+import com.github.wfxr.geolocator.Point
+import com.github.wfxr.geolocator.WGSPoint
 import com.google.gson.JsonParser
 import java.nio.file.Path
 

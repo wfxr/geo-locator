@@ -1,3 +1,5 @@
+package com.github.wfxr.geolocator
+
 import ch.hsr.geohash.BoundingBox
 import ch.hsr.geohash.GeoHash
 

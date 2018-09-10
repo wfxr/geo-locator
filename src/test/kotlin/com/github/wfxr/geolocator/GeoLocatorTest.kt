@@ -1,3 +1,6 @@
+package com.github.wfxr.geolocator
+
+import com.github.wfxr.geolocator.utils.loadDistrictsGaode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.params.ParameterizedTest

@@ -5,7 +5,7 @@ def getVersion = { ->
     return dirty ? "${version}-SNAPSHOT" : version
 }
 
-group 'wfxr'
+group 'com.github.wfxr'
 version getVersion()
 
 buildscript {

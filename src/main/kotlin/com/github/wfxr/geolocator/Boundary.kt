@@ -1,4 +1,7 @@
+package com.github.wfxr.geolocator
+
 import ch.hsr.geohash.BoundingBox
+import com.github.wfxr.geolocator.utils.contains
 
 class Boundary(private val regions: List<Point>) {
     val bBox: BoundingBox = regions.let { vertices ->
