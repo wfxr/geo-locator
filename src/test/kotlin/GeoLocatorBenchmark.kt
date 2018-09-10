@@ -7,8 +7,8 @@ import java.util.*
 @Suppress("unused_parameter")
 internal class GeoLocatorBenchmark {
     companion object {
+        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("scripts/districts")))
         val rand = Random()
-        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region")))
         @Suppress("unused")
         @JvmStatic
         fun geoRange() = listOf(

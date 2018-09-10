@@ -8,7 +8,7 @@ import java.nio.file.Paths
 @Suppress("unused_parameter")
 internal class GeoLocatorTest {
     companion object {
-        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region")))
+        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("scripts/districts")))
 
         @Suppress("unused")
         @JvmStatic

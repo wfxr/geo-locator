@@ -3,8 +3,11 @@ import java.util.List;
 
 public class Example {
     public static void main(String[] args) {
-        List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("/home/wenxuan/work/boundary/region"));
+        System.out.println("loading districts data...");
+        List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("scripts/districts"));
         GeoLocator     geoLocator = new GeoLocator(districts, 4);
+        System.out.println("done\n");
+
         System.out.println(geoLocator.getStat());
         System.out.println(geoLocator.locate(new WGSPoint(36.8092847021, 103.4912109375))); // 中国甘肃省永登县
         System.out.println(geoLocator.locate(new WGSPoint(30.7135039904, 101.0302734375))); // 中国四川省甘孜藏族自治州道孚县

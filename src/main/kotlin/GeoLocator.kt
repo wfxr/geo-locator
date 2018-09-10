@@ -58,6 +58,6 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
         return candidates.find { it.boundary.contains(p) }
     }
 
-    data class Stat(val single: Int, val all: Int, val max: Int, val avg: Double)
+    data class Stat(val sole: Int, val all: Int, val max: Int, val avg: Double)
 }
 
