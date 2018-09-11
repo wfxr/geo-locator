@@ -3,10 +3,7 @@ package com.github.wfxr.geolocator.utils
 import ch.hsr.geohash.BoundingBox
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
-import com.github.wfxr.geolocator.Boundary
-import com.github.wfxr.geolocator.District
-import com.github.wfxr.geolocator.Point
-import com.github.wfxr.geolocator.WGSPoint
+import com.github.wfxr.geolocator.*
 import com.google.gson.JsonParser
 import java.nio.file.Path
 
@@ -14,7 +11,7 @@ fun loadDistrictsGaode(path: Path) =
         path.toFile().walk().filter { it.isFile }.map { file ->
             try {
                 val root = JsonParser().parse(file.bufferedReader()).obj
-                val adcode = root["adcode"].string.trim()
+                val adcode = root["adcode"].string.toInt()
                 val name = root["name"].string.trim()
                 val center = root["center"].string.parseAsPointOrNull()
                 val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
@@ -28,10 +25,10 @@ fun loadDistrictsGaode(path: Path) =
             }
         }.flatten().toList()
 
-private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { Point(it[1], it[0]) }
+private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { WGSPoint(it[1], it[0]) }
 private fun String.parseAsPoints() = this.split(";").map { it.parseAsPoint() }
 private fun String.parseAsPointOrNull() = try {
-    this.split(",").map { it.toDouble() }.let { Point(it[1], it[0]) }
+    this.split(",").map { it.toDouble() }.let { WGSPoint(it[1], it[0]) }
 } catch (e: Exception) {
     null
 }
@@ -40,7 +37,7 @@ fun BoundingBox.contains(p: WGSPoint) =
         p.lat >= minLat && p.lon >= minLon && p.lat <= maxLat && p.lon <= maxLon
 
 @Suppress("unused")
-private fun distHaversineDEG(a: Point, b: Point) = distHaversineDEG(a.x, a.y, b.x, b.y)
+private fun distHaversineDEG(a: WGSPoint, b: WGSPoint) = distHaversineDEG(a.x, a.y, b.x, b.y)
 
 private fun distHaversineDEG(latA: Double, lonA: Double, latB: Double, lonB: Double) =
         distHaversineRAD(toRAD(latA), toRAD(lonA), toRAD(latB), toRAD(lonB))

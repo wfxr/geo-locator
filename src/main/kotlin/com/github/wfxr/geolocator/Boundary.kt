@@ -3,7 +3,7 @@ package com.github.wfxr.geolocator
 import ch.hsr.geohash.BoundingBox
 import com.github.wfxr.geolocator.utils.contains
 
-class Boundary(private val regions: List<Point>) {
+data class Boundary(private val regions: List<WGSPoint>) {
     val bBox: BoundingBox = regions.let { vertices ->
         val xMin = vertices.minBy { it.x }?.x ?: 0.0
         val xMax = vertices.maxBy { it.x }?.x ?: 0.0

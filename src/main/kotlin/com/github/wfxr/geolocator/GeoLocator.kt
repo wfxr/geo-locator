@@ -60,6 +60,8 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
         return candidates.find { it.boundary.contains(p) }
     }
 
+    fun locate(lat: Double, lon: Double) = locate(WGSPoint(lat, lon))
+    fun fastLocate(lat: Double, lon: Double) = fastLocate(WGSPoint(lat, lon))
+
     data class Stat(val sole: Int, val all: Int, val max: Int, val avg: Double)
 }
-
