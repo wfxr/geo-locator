@@ -3,13 +3,15 @@ package com.github.wfxr.geolocator
 import ch.hsr.geohash.BoundingBox
 import com.github.wfxr.geolocator.utils.contains
 
-data class Boundary(private val regions: List<WGSPoint>) {
-    val bBox: BoundingBox = regions.let { vertices ->
+data class Boundary(private val vertices: List<WGSPoint>) {
+    val bBox: BoundingBox
+
+    init {
         val xMin = vertices.minBy { it.x }?.x ?: 0.0
         val xMax = vertices.maxBy { it.x }?.x ?: 0.0
         val yMin = vertices.minBy { it.y }?.y ?: 0.0
         val yMax = vertices.maxBy { it.y }?.y ?: 0.0
-        BoundingBox(xMin, xMax, yMin, yMax)
+        bBox = BoundingBox(xMin, xMax, yMin, yMax)
     }
 
     fun contains(p: WGSPoint): Boolean {
@@ -17,11 +19,10 @@ data class Boundary(private val regions: List<WGSPoint>) {
 
         var res = false
         var i = 0
-        var j = regions.size - 1
-        while (i < regions.size) {
-            if (regions[i].y > p.y != regions[j].y > p.y && p.x < (regions[j].x - regions[i].x) * (p.y - regions[i].y) / (regions[j].y - regions[i].y) + regions[i].x) {
+        var j = vertices.size - 1
+        while (i < vertices.size) {
+            if (vertices[i].y > p.y != vertices[j].y > p.y && p.x < (vertices[j].x - vertices[i].x) * (p.y - vertices[i].y) / (vertices[j].y - vertices[i].y) + vertices[i].x)
                 res = !res
-            }
             j = i++
         }
         return res

@@ -9,7 +9,10 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
                                    districts.minBy { it.bBox.minLon }!!.bBox.minLon,
                                    districts.maxBy { it.bBox.maxLon }!!.bBox.maxLon)
 
-    private val geoHashMapping: Map<GeoHash, List<District>> = HashMap<GeoHash, MutableList<District>>().let { rs ->
+    private val geoHashMapping: Map<GeoHash, List<District>>
+
+    init {
+        val rs = HashMap<GeoHash, MutableList<District>>()
         val cornerSW = GeoHash.withCharacterPrecision(bbox.minLat, bbox.minLon, precision)
         val cornerNE = GeoHash.withCharacterPrecision(bbox.maxLat, bbox.maxLon, precision)
         val cornerSE = GeoHash.withCharacterPrecision(bbox.minLat, bbox.maxLon, precision)
@@ -36,7 +39,7 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
                 geoIter = beg
             }
         }
-        rs
+        geoHashMapping = rs
     }
 
     val stat: Stat = geoHashMapping.values.let { candidates ->
