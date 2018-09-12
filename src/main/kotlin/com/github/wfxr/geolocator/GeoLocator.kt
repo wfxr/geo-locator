@@ -55,12 +55,12 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
         return geoHashMapping[geoHash] ?: listOf()
     }
 
-    fun locate(p: WGSPoint) = possibleDistricts(p).find { it.boundary.contains(p) }
+    fun locate(p: WGSPoint) = possibleDistricts(p).find { it.contains(p) }
 
     fun fastLocate(p: WGSPoint): District? {
         val candidates = possibleDistricts(p)
         if (candidates.size == 1) return candidates.first()
-        return candidates.find { it.boundary.contains(p) }
+        return candidates.find { it.contains(p) }
     }
 
     fun locate(lat: Double, lon: Double) = locate(WGSPoint(lat, lon))

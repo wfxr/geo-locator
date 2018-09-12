@@ -3,8 +3,13 @@ package com.github.wfxr.geolocator
 import ch.hsr.geohash.BoundingBox
 import com.github.wfxr.geolocator.utils.contains
 
-data class Boundary(private val vertices: List<WGSPoint>) {
+interface IBoundary {
     val bBox: BoundingBox
+    fun contains(p: WGSPoint): Boolean
+}
+
+data class Boundary(private val vertices: List<WGSPoint>) : IBoundary {
+    override val bBox: BoundingBox
 
     init {
         val xMin = vertices.minBy { it.x }?.x ?: 0.0
@@ -14,7 +19,7 @@ data class Boundary(private val vertices: List<WGSPoint>) {
         bBox = BoundingBox(xMin, xMax, yMin, yMax)
     }
 
-    fun contains(p: WGSPoint): Boolean {
+    override fun contains(p: WGSPoint): Boolean {
         if (!bBox.contains(p)) return false
 
         var res = false
