@@ -2,6 +2,7 @@ package com.github.wfxr.geolocator
 
 import ch.hsr.geohash.BoundingBox
 import ch.hsr.geohash.GeoHash
+import com.github.wfxr.geolocator.utils.GeoHashRange
 
 class GeoLocator(districts: List<District>, private val precision: Int = 4) {
     private val bbox = BoundingBox(districts.minBy { it.bBox.minLat }!!.bBox.minLat,
@@ -9,38 +10,13 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
                                    districts.minBy { it.bBox.minLon }!!.bBox.minLon,
                                    districts.maxBy { it.bBox.maxLon }!!.bBox.maxLon)
 
-    private val geoHashMapping: Map<GeoHash, List<District>>
-
-    init {
-        val rs = HashMap<GeoHash, MutableList<District>>()
-        val cornerSW = GeoHash.withCharacterPrecision(bbox.minLat, bbox.minLon, precision)
-        val cornerNE = GeoHash.withCharacterPrecision(bbox.maxLat, bbox.maxLon, precision)
-        val cornerSE = GeoHash.withCharacterPrecision(bbox.minLat, bbox.maxLon, precision)
-
-        var geoIter = cornerSW
-        var beg = cornerSW
-        var end = cornerSE
-        while (true) {
-            districts
-                .filter { it.bBox.intersects(geoIter.boundingBox) }
-                .takeIf { it.isNotEmpty() }
-                ?.toMutableList()?.let {
-                    rs.merge(geoIter, it) { old, new ->
-                        old.apply { addAll(new) }
-                    }
-                }
-
-            if (geoIter != end) {
-                geoIter = geoIter.easternNeighbour
-            } else {
-                if (end == cornerNE) break
-                beg = beg.northernNeighbour
-                end = end.northernNeighbour
-                geoIter = beg
-            }
-        }
-        geoHashMapping = rs
-    }
+    private val geoHashMapping: Map<GeoHash, List<District>> =
+            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision).mapNotNull { geoHash ->
+                districts
+                    .filter { it.bBox.intersects(geoHash.boundingBox) }
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { geoHash to it }
+            }.toMap()
 
     val stat: Stat = geoHashMapping.values.let { candidates ->
         val single = candidates.count { it.size == 1 }
