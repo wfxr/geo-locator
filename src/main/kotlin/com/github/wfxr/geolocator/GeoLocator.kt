@@ -19,11 +19,11 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
             }.toMap()
 
     val stat: Stat = geoHashMapping.values.let { candidates ->
-        val single = candidates.count { it.size == 1 }
+        val sole = candidates.count { it.size == 1 }
         val max = candidates.maxBy { it.size }!!.size
         val all = candidates.sumBy { it.size }
         val avg = all / candidates.size.toDouble()
-        Stat(single, all, max, avg)
+        Stat(sole, all, max, avg)
     }
 
     private fun possibleDistricts(p: WGSPoint): List<District> {
