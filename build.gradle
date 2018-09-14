@@ -16,7 +16,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.60"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.70"
     }
 }
 
@@ -37,6 +37,15 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
     testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
 }
 
 test {
