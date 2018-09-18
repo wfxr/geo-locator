@@ -2,6 +2,7 @@ package com.github.wfxr.geolocator.example;
 
 import com.github.wfxr.geolocator.District;
 import com.github.wfxr.geolocator.HashingLocator;
+import com.github.wfxr.geolocator.IGeoLocator;
 import com.github.wfxr.geolocator.utils.UtilsKt;
 
 import java.nio.file.Paths;
@@ -11,7 +12,7 @@ public class Example {
     public static void main(String[] args) {
         System.out.println("loading districts data...");
         List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("scripts/districts"));
-        HashingLocator geoLocator = new HashingLocator(districts, 4);
+        IGeoLocator    geoLocator = new HashingLocator(districts, 4);
         System.out.println("done\n");
 
         System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
