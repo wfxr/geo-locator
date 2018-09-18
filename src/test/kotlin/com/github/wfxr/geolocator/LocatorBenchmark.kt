@@ -1,18 +1,16 @@
 package com.github.wfxr.geolocator
 
-import com.github.wfxr.geolocator.utils.loadDistrictsGaode
 import org.apache.commons.lang3.Validate
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.nio.file.Paths
 import java.util.*
 
-@Suppress("unused_parameter")
-internal class GeoLocatorBenchmark {
+internal abstract class LocatorBenchmarkBase : TestBase() {
     companion object {
-        val geoLocator: GeoLocator = GeoLocator(loadDistrictsGaode(Paths.get("scripts/districts")))
         private val rand = Random()
+
+        private const val COUNT = 500_000
 
         @Suppress("unused")
         @JvmStatic
@@ -31,10 +29,10 @@ internal class GeoLocatorBenchmark {
     @ParameterizedTest
     @MethodSource("geoRange")
     fun benchLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        repeat(1_000_000) {
+        repeat(COUNT) {
             val lat = randomDouble(latRange.first, latRange.second)
             val lon = randomDouble(lonRange.first, lonRange.second)
-            geoLocator.locate(WGSPoint(lat, lon))
+            geoLocator.locate(lat, lon)
         }
     }
 
@@ -42,10 +40,26 @@ internal class GeoLocatorBenchmark {
     @ParameterizedTest
     @MethodSource("geoRange")
     fun benchFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        repeat(1_000_000) {
+        repeat(COUNT) {
             val lat = randomDouble(latRange.first, latRange.second)
             val lon = randomDouble(lonRange.first, lonRange.second)
-            geoLocator.fastLocate(WGSPoint(lat, lon))
+            geoLocator.fastLocate(lat, lon)
         }
     }
+}
+
+internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
+    companion object {
+        val GeoLocator = HashingLocator(districts)
+    }
+
+    override val geoLocator = GeoLocator
+}
+
+internal class RTreeLocatorBenchmark : LocatorBenchmarkBase() {
+    companion object {
+        val GeoLocator = RTreeLocator(districts)
+    }
+
+    override val geoLocator = GeoLocator
 }

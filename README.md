@@ -25,6 +25,7 @@ Add dependency：
 ## Usage
 ```java
 List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("path/to/districts/dir"));
-GeoLocator     geoLocator = new GeoLocator(districts);
+// GeoLocator     geoLocator = new RTreeLocator(districts);
+GeoLocator     geoLocator = new HashingLocator(districts);
 System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
 ```

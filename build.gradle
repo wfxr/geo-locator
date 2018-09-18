@@ -33,6 +33,7 @@ dependencies {
     compile group: 'ch.hsr', name: 'geohash', version: '1.3.0'
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'
+    compile group: 'com.github.davidmoten', name: 'rtree', version: '0.8.6'
 
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"

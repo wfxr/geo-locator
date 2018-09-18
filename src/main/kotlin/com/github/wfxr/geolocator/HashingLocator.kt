@@ -4,7 +4,7 @@ import ch.hsr.geohash.BoundingBox
 import ch.hsr.geohash.GeoHash
 import com.github.wfxr.geolocator.utils.GeoHashRange
 
-class GeoLocator(districts: List<District>, private val precision: Int = 4) {
+class HashingLocator(districts: List<District>, private val precision: Int = 4) : IGeoLocator {
     private val bbox = BoundingBox(districts.minBy { it.bBox.minLat }!!.bBox.minLat,
                                    districts.maxBy { it.bBox.maxLat }!!.bBox.maxLat,
                                    districts.minBy { it.bBox.minLon }!!.bBox.minLon,
@@ -26,21 +26,18 @@ class GeoLocator(districts: List<District>, private val precision: Int = 4) {
         Stat(sole, all, max, avg)
     }
 
-    private fun possibleDistricts(p: WGSPoint): List<District> {
-        val geoHash = GeoHash.withCharacterPrecision(p.lat, p.lon, precision)
+    private fun possibleDistricts(lat: Double, lon: Double): List<District> {
+        val geoHash = GeoHash.withCharacterPrecision(lat, lon, precision)
         return geoHashMapping[geoHash] ?: listOf()
     }
 
-    fun locate(p: WGSPoint) = possibleDistricts(p).find { it.contains(p) }
+    override fun locate(lat: Double, lon: Double) = possibleDistricts(lat, lon).find { it.contains(lat, lon) }
 
-    fun fastLocate(p: WGSPoint): District? {
-        val candidates = possibleDistricts(p)
+    override fun fastLocate(lat: Double, lon: Double): District? {
+        val candidates = possibleDistricts(lat, lon)
         if (candidates.size == 1) return candidates.first()
-        return candidates.find { it.contains(p) }
+        return candidates.find { it.contains(lat, lon) }
     }
-
-    fun locate(lat: Double, lon: Double) = locate(WGSPoint(lat, lon))
-    fun fastLocate(lat: Double, lon: Double) = fastLocate(WGSPoint(lat, lon))
 
     data class Stat(val sole: Int, val all: Int, val max: Int, val avg: Double)
 }

@@ -1,13 +1,13 @@
 package com.github.wfxr.geolocator.example
 
-import com.github.wfxr.geolocator.GeoLocator
+import com.github.wfxr.geolocator.HashingLocator
 import com.github.wfxr.geolocator.utils.loadDistrictsGaode
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {
     println("loading districts data...")
     val districts = loadDistrictsGaode(Paths.get("scripts/districts"))
-    val geoLocator = GeoLocator(districts, 4)
+    val geoLocator = HashingLocator(districts, 4)
     println("done\n")
 
     println(geoLocator.locate(36.8092847021, 103.4912109375)) // 中国甘肃省永登县

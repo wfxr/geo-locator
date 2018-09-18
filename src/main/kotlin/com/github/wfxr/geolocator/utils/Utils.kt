@@ -3,7 +3,9 @@ package com.github.wfxr.geolocator.utils
 import ch.hsr.geohash.BoundingBox
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
-import com.github.wfxr.geolocator.*
+import com.github.wfxr.geolocator.Boundary
+import com.github.wfxr.geolocator.District
+import com.github.wfxr.geolocator.WGSPoint
 import com.google.gson.JsonParser
 import java.nio.file.Path
 
@@ -33,8 +35,10 @@ private fun String.parseAsPointOrNull() = try {
     null
 }
 
-fun BoundingBox.contains(p: WGSPoint) =
-        p.lat >= minLat && p.lon >= minLon && p.lat <= maxLat && p.lon <= maxLon
+fun BoundingBox.contains(p: WGSPoint) = this.contains(p.lat, p.lon)
+
+fun BoundingBox.contains(lat: Double, lon: Double) =
+        lat >= minLat && lon >= minLon && lat <= maxLat && lon <= maxLon
 
 @Suppress("unused")
 private fun distHaversineDEG(a: WGSPoint, b: WGSPoint) = distHaversineDEG(a.x, a.y, b.x, b.y)
