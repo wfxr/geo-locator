@@ -18,13 +18,13 @@ Add dependency：
 <dependency>
     <groupId>com.github.wfxr</groupId>
     <artifactId>geo-locator</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
 ## Usage
 ```java
 List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("path/to/districts/dir"));
-IGeoLocator     geoLocator = new HashingLocator(districts); // RTreeLocator(districts)
+IGeoLocator    geoLocator = new HashingLocator(districts); // RTreeLocator(districts)
 System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
 ```
