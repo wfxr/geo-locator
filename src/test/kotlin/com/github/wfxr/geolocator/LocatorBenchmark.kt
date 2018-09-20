@@ -10,7 +10,7 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
     companion object {
         private val rand = Random()
 
-        private const val COUNT = 500_000
+        private const val COUNT = 100_000_0
 
         @Suppress("unused")
         @JvmStatic
