@@ -2,13 +2,23 @@ package com.github.wfxr.geolocator.example
 
 import com.github.wfxr.geolocator.HashingLocator
 import com.github.wfxr.geolocator.utils.loadDistrictsGaode
+import com.github.wfxr.geolocator.utils.loadDistrictsGaodeParallel
+import java.lang.System.currentTimeMillis
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {
     println("loading districts data...")
-    val districts = loadDistrictsGaode(Paths.get("scripts/districts"))
-    val geoLocator = HashingLocator(districts, 4)
-    println("done\n")
+    val timeStart = currentTimeMillis()
+
+    val districts = loadDistrictsGaodeParallel(Paths.get("scripts/districts"))
+    val timeDistrictsLoaded = currentTimeMillis()
+    println("time loading districts: ${timeDistrictsLoaded - timeStart}")
+
+    val geoLocator = HashingLocator(districts)
+    val timeLocatorLoaded = currentTimeMillis()
+    println("time loading locator:   ${timeLocatorLoaded - timeDistrictsLoaded}")
+
+    println("loaded: ${geoLocator.stat}")
 
     println(geoLocator.locate(36.8092847021, 103.4912109375)) // 中国甘肃省永登县
     println(geoLocator.locate(30.7135039904, 101.0302734375)) // 中国四川省甘孜藏族自治州道孚县

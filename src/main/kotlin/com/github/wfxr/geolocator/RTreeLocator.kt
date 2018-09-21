@@ -1,31 +1,26 @@
 package com.github.wfxr.geolocator
 
 import com.github.davidmoten.rtree.RTree
-import com.github.davidmoten.rtree.geometry.Geometries
-import com.github.davidmoten.rtree.geometry.Geometry
+import com.github.davidmoten.rtree.geometry.Geometries.point
+import com.github.davidmoten.rtree.geometry.Rectangle
+import com.github.davidmoten.rtree.internal.EntryDefault
+import com.github.wfxr.geolocator.utils.toRectangle
 
 class RTreeLocator(districts: List<District>) : IGeoLocator {
-    private val tree: RTree<District, Geometry> = districts.let { districts ->
-        var rtree = RTree.star().create<District, Geometry>()
-        districts.forEach { it ->
-            val lat1 = it.bBox.minLat
-            val lon1 = it.bBox.minLon
-            val lat2 = it.bBox.maxLat
-            val lon2 = it.bBox.maxLon
-            rtree = rtree.add(it, Geometries.rectangle(lat1, lon1, lat2, lon2))
-        }
-        rtree!!
-    }
+    private val tree: RTree<District, Rectangle> = RTree
+        .star()
+        .create<District, Rectangle>()
+        .add(districts.map { EntryDefault(it, it.mbr.toRectangle()) })
 
     override fun locate(lat: Double, lon: Double): District? {
-        return tree.search(Geometries.point(lat, lon))
+        return tree.search(point(lat, lon))
             .map { it.value() }
             .toBlocking().toIterable()
             .find { it.contains(lat, lon) }
     }
 
     override fun fastLocate(lat: Double, lon: Double): District? {
-        val candidates = tree.search(Geometries.point(lat, lon))
+        val candidates = tree.search(point(lat, lon))
             .map { it.value() }
             .toBlocking().toIterable().toList()
         if (candidates.size == 1) return candidates.first()

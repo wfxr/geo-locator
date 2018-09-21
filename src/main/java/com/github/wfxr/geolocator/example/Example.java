@@ -12,7 +12,7 @@ public class Example {
     public static void main(String[] args) {
         System.out.println("loading districts data...");
         List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("scripts/districts"));
-        IGeoLocator    geoLocator = new HashingLocator(districts, 4);
+        IGeoLocator    geoLocator = new HashingLocator(districts );
         System.out.println("done\n");
 
         System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县

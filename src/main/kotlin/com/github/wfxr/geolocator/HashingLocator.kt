@@ -3,22 +3,36 @@ package com.github.wfxr.geolocator
 import ch.hsr.geohash.BoundingBox
 import ch.hsr.geohash.GeoHash
 import com.github.wfxr.geolocator.utils.GeoHashRange
+import com.github.wfxr.geolocator.utils.intersects
+import java.util.stream.Collectors
 
-class HashingLocator(districts: List<District>, private val precision: Int = 4) : IGeoLocator {
-    private val bbox = BoundingBox(districts.minBy { it.bBox.minLat }!!.bBox.minLat,
-                                   districts.maxBy { it.bBox.maxLat }!!.bBox.maxLat,
-                                   districts.minBy { it.bBox.minLon }!!.bBox.minLon,
-                                   districts.maxBy { it.bBox.maxLon }!!.bBox.maxLon)
+class HashingLocator(districts: List<District>, private val precision: Int) : IGeoLocator {
+    constructor(districts: List<District>) : this(districts, 4)
 
-    private val geoHashMapping: Map<GeoHash, List<District>> =
-            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision).mapNotNull { geoHash ->
-                districts
-                    .filter { it.bBox.intersects(geoHash.boundingBox) }
-                    .takeIf { it.isNotEmpty() }
-                    ?.let { geoHash to it }
-            }.toMap()
+    private val bbox = BoundingBox(districts.minBy { it.mbr.minLat }!!.mbr.minLat,
+                                   districts.maxBy { it.mbr.maxLat }!!.mbr.maxLat,
+                                   districts.minBy { it.mbr.minLon }!!.mbr.minLon,
+                                   districts.maxBy { it.mbr.maxLon }!!.mbr.maxLon)
 
-    val stat: Stat = geoHashMapping.values.let { candidates ->
+    private val geoHashCache: Map<GeoHash, List<District>> = buildGeoHashCacheParallel(districts)
+
+    private fun buildGeoHashCacheParallel(districts: List<District>): Map<GeoHash, List<District>> =
+            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision)
+                .toList().parallelStream()
+                .map { it to possibleDistricts(it, districts) }
+                .filter { it.second.isNotEmpty() }
+                .collect(Collectors.toMap({ it!!.first }, { it!!.second }))
+
+    private fun buildGeoHashCache(districts: List<District>): Map<GeoHash, List<District>> =
+            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision)
+                .map { it to possibleDistricts(it, districts) }
+                .filter { it.second.isNotEmpty() }
+                .toMap()
+
+    private fun possibleDistricts(geoHash: GeoHash, districts: List<District>) =
+            districts.filter { it.intersects(geoHash.boundingBox) }
+
+    val stat: Stat = geoHashCache.values.let { candidates ->
         val sole = candidates.count { it.size == 1 }
         val max = candidates.maxBy { it.size }!!.size
         val all = candidates.sumBy { it.size }
@@ -28,7 +42,7 @@ class HashingLocator(districts: List<District>, private val precision: Int = 4) 
 
     private fun possibleDistricts(lat: Double, lon: Double): List<District> {
         val geoHash = GeoHash.withCharacterPrecision(lat, lon, precision)
-        return geoHashMapping[geoHash] ?: listOf()
+        return geoHashCache[geoHash] ?: listOf()
     }
 
     override fun locate(lat: Double, lon: Double) = possibleDistricts(lat, lon).find { it.contains(lat, lon) }

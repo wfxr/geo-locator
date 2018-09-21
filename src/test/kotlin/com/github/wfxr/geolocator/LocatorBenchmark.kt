@@ -17,7 +17,8 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         fun geoRange() = listOf(
             Arguments.of("全球区域", Pair(-90.0, 90.0), Pair(-180.0, 180.0)),
             Arguments.of("中国外矩形区域", Pair(0.0, 73.0), Pair(55.0, 138.0)),
-            Arguments.of("中国内部区域", Pair(30.0, 41.0), Pair(109.0, 119.0)))
+            Arguments.of("中国内部区域1", Pair(30.0, 41.0), Pair(109.0, 119.0)),
+            Arguments.of("中国内部区域2", Pair(26.0, 39.0), Pair(100.0, 116.0)))
 
         fun randomDouble(startInclusive: Double, endInclusive: Double): Double {
             Validate.isTrue(endInclusive >= startInclusive, "Start value must be smaller or equal to end value.")
@@ -50,7 +51,7 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
 
 internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
-        val GeoLocator = HashingLocator(districts)
+        val GeoLocator = HashingLocator(districts, 4)
     }
 
     override val geoLocator = GeoLocator
