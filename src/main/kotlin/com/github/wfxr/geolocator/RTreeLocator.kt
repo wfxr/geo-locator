@@ -12,18 +12,19 @@ class RTreeLocator(districts: List<District>) : IGeoLocator {
         .create<District, Rectangle>()
         .add(districts.map { EntryDefault(it, it.mbr.toRectangle()) })
 
-    override fun locate(lat: Double, lon: Double): District? {
-        return tree.search(point(lat, lon))
-            .map { it.value() }
-            .toBlocking().toIterable()
-            .find { it.contains(lat, lon) }
-    }
+    private fun possibleDistricts(lat: Double, lon: Double) =
+            tree.search(point(lat, lon))
+                .map { it.value() }
+                .toBlocking()
+                .toIterable()
+
+    override fun locate(lat: Double, lon: Double) =
+            possibleDistricts(lat, lon).find { it.contains(lat, lon) }
 
     override fun fastLocate(lat: Double, lon: Double): District? {
-        val candidates = tree.search(point(lat, lon))
-            .map { it.value() }
-            .toBlocking().toIterable().toList()
-        if (candidates.size == 1) return candidates.first()
-        return candidates.find { it.contains(lat, lon) }
+        val candidates = possibleDistricts(lat, lon).toList()
+        var remain = candidates.size
+        candidates.forEach { if (remain == 1 || it.contains(lat, lon)) return it else --remain }
+        return null
     }
 }

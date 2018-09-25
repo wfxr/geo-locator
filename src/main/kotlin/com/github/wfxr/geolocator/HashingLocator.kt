@@ -49,8 +49,9 @@ class HashingLocator(districts: List<District>, private val precision: Int) : IG
 
     override fun fastLocate(lat: Double, lon: Double): District? {
         val candidates = possibleDistricts(lat, lon)
-        if (candidates.size == 1) return candidates.first()
-        return candidates.find { it.contains(lat, lon) }
+        var remain = candidates.size
+        candidates.forEach { if (remain == 1 || it.contains(lat, lon)) return it else --remain }
+        return null
     }
 
     data class Stat(val sole: Int, val all: Int, val max: Int, val avg: Double)
