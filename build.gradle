@@ -12,7 +12,6 @@ buildscript {
     ext.junitVersion = "5.3.0"
 
     repositories {
-        maven { url 'http://mvn.slimjars.com' }
         mavenCentral()
         jcenter()
     }
@@ -26,6 +25,7 @@ apply plugin: 'kotlin'
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
