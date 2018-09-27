@@ -54,7 +54,7 @@ artifacts {
 test {
     useJUnitPlatform()
     testLogging {
-        events "failed"
+        events "failed", "passed"
     }
     filter {
         includeTestsMatching "*Test"
