@@ -1,8 +1,7 @@
 package com.github.wfxr.geolocator.utils
 
 import ch.hsr.geohash.BoundingBox
-import com.github.davidmoten.rtree.geometry.Geometries
-import com.github.davidmoten.rtree.geometry.Geometries.*
+import com.github.davidmoten.rtree.geometry.Geometries.rectangle
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
 import com.github.wfxr.geolocator.Boundary

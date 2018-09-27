@@ -5,10 +5,13 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 
 internal abstract class LocatorBenchmarkBase : TestBase() {
     companion object {
         private const val COUNT = 100_000_0
+        private const val CONCURRENCY = 4
         private val rand = Random(COUNT.toLong())
 
         @Suppress("unused")
@@ -24,6 +27,8 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
             return if (startInclusive == endInclusive) startInclusive
             else startInclusive + (endInclusive - startInclusive) * rand.nextDouble()
         }
+
+        val pool = Executors.newFixedThreadPool(4)!!
     }
 
     @ParameterizedTest
@@ -36,6 +41,23 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchConcurrentFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        val latch = CountDownLatch(CONCURRENCY)
+        repeat(CONCURRENCY) { _ ->
+            pool.execute {
+                repeat(COUNT / CONCURRENCY) {
+                    val lat = randomDouble(latRange.first, latRange.second)
+                    val lon = randomDouble(lonRange.first, lonRange.second)
+                    geoLocator.fastLocate(lat, lon)
+                }
+                latch.countDown()
+            }
+        }
+        latch.await()
+    }
+
 
     @ParameterizedTest
     @MethodSource("geoRange")
@@ -46,11 +68,28 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
             geoLocator.fastLocate(lat, lon)
         }
     }
+
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchConcurrentLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        val latch = CountDownLatch(CONCURRENCY)
+        repeat(CONCURRENCY) { _ ->
+            pool.execute {
+                repeat(COUNT / CONCURRENCY) {
+                    val lat = randomDouble(latRange.first, latRange.second)
+                    val lon = randomDouble(lonRange.first, lonRange.second)
+                    geoLocator.locate(lat, lon)
+                }
+                latch.countDown()
+            }
+        }
+        latch.await()
+    }
 }
 
 internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
-        val GeoLocator = HashingLocator(districts, 4)
+        val GeoLocator = HashingLocator(districts, 5)
     }
 
     override val geoLocator = GeoLocator

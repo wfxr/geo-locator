@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 
 @Suppress("unused_parameter")
 internal abstract class LocatorTestBase : TestBase() {
@@ -30,6 +32,9 @@ internal abstract class LocatorTestBase : TestBase() {
             Arguments.of(110108, 39.8981479502, 116.3225555420, "北京市北京市海淀区"),
             Arguments.of(110106, 39.8944274320, 116.3180494308, "北京市北京市丰台区"),
             Arguments.of(110102, 39.8938018383, 116.3265466690, "北京市北京市西城区"))
+
+        private const val CONCURRENCY = 8
+        val pool = Executors.newFixedThreadPool(CONCURRENCY)
     }
 
     @ParameterizedTest
@@ -42,10 +47,44 @@ internal abstract class LocatorTestBase : TestBase() {
 
     @ParameterizedTest
     @MethodSource("districtSample")
+    fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        val latch = CountDownLatch(CONCURRENCY)
+        repeat(CONCURRENCY) { _ ->
+            pool.execute {
+                repeat(2000) {
+                    val district = geoLocator.locate(lat, lon)
+                    assertNotNull(district)
+                    assertEquals(expectAdcode, district!!.adcode, remark)
+                }
+                latch.countDown()
+            }
+        }
+        latch.await()
+    }
+
+    @ParameterizedTest
+    @MethodSource("districtSample")
     fun fastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
         val district = geoLocator.fastLocate(lat, lon)
         assertNotNull(district)
         assertEquals(expectAdcode, district!!.adcode, remark)
+    }
+
+    @ParameterizedTest
+    @MethodSource("districtSample")
+    fun concurrentFastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        val latch = CountDownLatch(CONCURRENCY)
+        repeat(CONCURRENCY) { _ ->
+            pool.execute {
+                repeat(2000) {
+                    val district = geoLocator.fastLocate(lat, lon)
+                    assertNotNull(district)
+                    assertEquals(expectAdcode, district!!.adcode, remark)
+                }
+                latch.countDown()
+            }
+        }
+        latch.await()
     }
 }
 
