@@ -65,22 +65,3 @@ fun District.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it
 
 fun District.intersects(box: BoundingBox) =
         box.intersects(this.mbr) && (box.vertexIn(this) || this.vertexIn(box))
-
-@Suppress("unused")
-private fun distHaversineDEG(a: WGSPoint, b: WGSPoint) = distHaversineDEG(a.x, a.y, b.x, b.y)
-
-private fun distHaversineDEG(latA: Double, lonA: Double, latB: Double, lonB: Double) =
-        distHaversineRAD(toRAD(latA), toRAD(lonA), toRAD(latB), toRAD(lonB))
-
-private fun distHaversineRAD(latA: Double, lonA: Double, latB: Double, lonB: Double): Double {
-    if (latA == latB && lonA == lonB) return 0.0
-    val hsinX = Math.sin((lonA - lonB) * 0.5)
-    val hsinY = Math.sin((latA - latB) * 0.5)
-    var h = hsinY * hsinY + Math.cos(latA) * Math.cos(latB) * hsinX * hsinX
-    if (h > 1) h = 1.0
-    return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h))
-}
-
-private fun toRAD(degrees: Double) = degrees * DEG_PER_RAD
-
-private const val DEG_PER_RAD = Math.PI / 180
