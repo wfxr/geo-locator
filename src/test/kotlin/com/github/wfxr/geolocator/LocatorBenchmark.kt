@@ -8,9 +8,8 @@ import java.util.*
 
 internal abstract class LocatorBenchmarkBase : TestBase() {
     companion object {
-        private val rand = Random()
-
         private const val COUNT = 100_000_0
+        private val rand = Random(COUNT.toLong())
 
         @Suppress("unused")
         @JvmStatic
