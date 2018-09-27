@@ -1,6 +1,11 @@
-# geo-locator
+# Geo Locator Library
 
-Locate the district by gps.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Jitpack](https://jitpack.io/v/wfxr/geo-locator.svg)](https://jitpack.io/#wfxr/geo-locator)
+
+## Overview
+
+This is a library for fast locating district by GPS coordinates.
 
 ## Install
 
@@ -23,8 +28,17 @@ Add dependency：
 ```
 
 ## Usage
-```java
+
+### Java
+``` java
 List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("path/to/districts/dir"));
-IGeoLocator    geoLocator = new HashingLocator(districts); // RTreeLocator(districts)
-System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
+IGeoLocator    geoLocator = new HashingLocator(districts);
+System.out.println(geoLocator.locate(36.8092847021, 103.4912109375));
+```
+
+### Kotlin
+``` kotlin
+val districts  = loadDistrictsGaodeParallel(Paths.get("path/to/districts/dir"))
+val geoLocator = HashingLocator(districts)
+println(geoLocator.locate(36.8092847021, 103.4912109375))
 ```
