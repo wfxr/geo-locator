@@ -9,7 +9,7 @@ import java.util.stream.Collectors
 class HashingLocator(districts: List<District>, private val precision: Int) : IGeoLocator {
     constructor(districts: List<District>) : this(districts, 4)
 
-    private val bbox = BoundingBox(districts.minBy { it.mbr.minLat }!!.mbr.minLat,
+    private val mbr = BoundingBox(districts.minBy { it.mbr.minLat }!!.mbr.minLat,
                                    districts.maxBy { it.mbr.maxLat }!!.mbr.maxLat,
                                    districts.minBy { it.mbr.minLon }!!.mbr.minLon,
                                    districts.maxBy { it.mbr.maxLon }!!.mbr.maxLon)
@@ -17,14 +17,14 @@ class HashingLocator(districts: List<District>, private val precision: Int) : IG
     private val geoHashCache: Map<GeoHash, List<District>> = buildGeoHashCacheParallel(districts)
 
     private fun buildGeoHashCacheParallel(districts: List<District>): Map<GeoHash, List<District>> =
-            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision)
+            GeoHashRange(mbr.minLat, mbr.minLon, mbr.maxLat, mbr.maxLon, precision)
                 .toList().parallelStream()
                 .map { it to possibleDistricts(it, districts) }
                 .filter { it.second.isNotEmpty() }
                 .collect(Collectors.toMap({ it!!.first }, { it!!.second }))
 
     private fun buildGeoHashCache(districts: List<District>): Map<GeoHash, List<District>> =
-            GeoHashRange(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon, precision)
+            GeoHashRange(mbr.minLat, mbr.minLon, mbr.maxLat, mbr.maxLon, precision)
                 .map { it to possibleDistricts(it, districts) }
                 .filter { it.second.isNotEmpty() }
                 .toMap()
