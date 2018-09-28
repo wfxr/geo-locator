@@ -11,27 +11,34 @@ interface IBoundary {
     fun contains(lat: Double, lon: Double): Boolean
 }
 
-class Boundary(private val V: List<WGSPoint>) : IBoundary {
-    override val mbr: BoundingBox
-    private val tree: RTree
-    override val vertexes get() = V
+class Boundary : IBoundary {
+    internal constructor(vertexes: List<WGSPoint>, lazy: Boolean) {
+        this.vertexes = vertexes
+        this.rtree = RTree(4, 55)
+        if (!lazy) init()
+    }
 
-    init {
+    internal fun init() {
         val xMin = V.minBy { it.x }?.x ?: 0.0
         val xMax = V.maxBy { it.x }?.x ?: 0.0
         val yMin = V.minBy { it.y }?.y ?: 0.0
         val yMax = V.maxBy { it.y }?.y ?: 0.0
         mbr = BoundingBox(xMin, xMax, yMin, yMax)
-        tree = RTree(4, 55)
-
         V.zipWithNext { a, b -> Rectangle(a.lat, a.lon, b.lat, b.lon) }
-            .forEachIndexed { index, rectangle -> tree.add(rectangle, index) }
+            .forEachIndexed { index, rectangle -> rtree.add(rectangle, index) }
     }
+
+    constructor(vertexes: List<WGSPoint>) : this(vertexes, false)
+
+    override val vertexes: List<WGSPoint>
+    override lateinit var mbr: BoundingBox
+    private val rtree: RTree
+    private inline val V get() = vertexes
 
     private fun rTreeContains(lat: Double, lon: Double): Boolean {
         if (!mbr.contains(lat, lon)) return false
         var count = 0
-        tree.intersectsRightHalfLine(lat, lon) { i ->
+        rtree.intersectsRightHalfLine(lat, lon) { i ->
             val (lat1, lon1) = V[i]
             val (lat2, lon2) = V[i + 1]
             if (lon1 == lon2) {

@@ -1,10 +1,13 @@
 package com.github.wfxr.geolocator
 
+import com.github.wfxr.geolocator.utils.loadDistrictsParallel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
@@ -34,7 +37,7 @@ internal abstract class LocatorTestBase : TestBase() {
             Arguments.of(110102, 39.8938018383, 116.3265466690, "北京市北京市西城区"))
 
         private const val CONCURRENCY = 8
-        val pool = Executors.newFixedThreadPool(CONCURRENCY)
+        val pool = Executors.newFixedThreadPool(CONCURRENCY)!!
     }
 
     @ParameterizedTest
@@ -90,7 +93,9 @@ internal abstract class LocatorTestBase : TestBase() {
 
 internal class HashingLocatorTest : LocatorTestBase() {
     companion object {
-        val GeoLocator = HashingLocator(districts)
+        private const val LEVEL = 5
+        private val path = Paths.get("scripts/hashing-locator-level-$LEVEL.dat")
+        val GeoLocator = HashingLocator.deserialize(Files.newInputStream(path), true)
     }
 
     override val geoLocator = GeoLocator
@@ -98,8 +103,7 @@ internal class HashingLocatorTest : LocatorTestBase() {
 
 internal class RTreeLocatorTest : LocatorTestBase() {
     companion object {
-        val GeoLocator = RTreeLocator(districts)
+        val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
     }
-
     override val geoLocator = GeoLocator
 }

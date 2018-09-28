@@ -1,9 +1,12 @@
 package com.github.wfxr.geolocator
 
+import com.github.wfxr.geolocator.utils.loadDistrictsParallel
 import org.apache.commons.lang3.Validate
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -101,7 +104,9 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
 
 internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
-        val GeoLocator = HashingLocator(districts, 4)
+        private const val LEVEL = 5
+        private val path = Paths.get("scripts/hashing-locator-level-$LEVEL.dat")
+        val GeoLocator = HashingLocator.deserialize(Files.newInputStream(path), true)
     }
 
     override val geoLocator = GeoLocator
@@ -109,8 +114,7 @@ internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
 
 internal class RTreeLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
-        val GeoLocator = RTreeLocator(districts)
+        val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
     }
-
     override val geoLocator = GeoLocator
 }

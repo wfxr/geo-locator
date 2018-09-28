@@ -17,8 +17,7 @@ fun main(args: Array<String>) {
     val timeLocatorLoaded = currentTimeMillis()
     println("time loading locator:   ${timeLocatorLoaded - timeDistrictsLoaded}")
 
-    println("loaded: ${geoLocator.stat}")
-
+    println("locate test: ${geoLocator.stat}")
     println(geoLocator.locate(36.8092847021, 103.4912109375)) // 中国甘肃省永登县
     println(geoLocator.locate(30.7135039904, 101.0302734375)) // 中国四川省甘孜藏族自治州道孚县
     println(geoLocator.locate(46.2558468185, 126.6064453125)) // 中国黑龙江省绥化市兰西县

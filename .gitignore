@@ -11,3 +11,4 @@ build/
 
 /scripts/districts
 /scripts/.env
+/scripts/*.dat

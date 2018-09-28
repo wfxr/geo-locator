@@ -8,11 +8,11 @@ import com.github.wfxr.geolocator.utils.UtilsKt;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class Example {
+public class Basic {
     public static void main(String[] args) {
         System.out.println("loading districts data...");
         List<District> districts  = UtilsKt.loadDistricts(Paths.get("scripts/districts"));
-        IGeoLocator    geoLocator = new HashingLocator(districts );
+        IGeoLocator    geoLocator = new HashingLocator(districts);
         System.out.println("done\n");
 
         System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
