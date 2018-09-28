@@ -1,8 +1,7 @@
 package com.github.wfxr.geolocator.example
 
 import com.github.wfxr.geolocator.HashingLocator
-import com.github.wfxr.geolocator.utils.loadDistrictsGaode
-import com.github.wfxr.geolocator.utils.loadDistrictsGaodeParallel
+import com.github.wfxr.geolocator.utils.loadDistrictsParallel
 import java.lang.System.currentTimeMillis
 import java.nio.file.Paths
 
@@ -10,7 +9,7 @@ fun main(args: Array<String>) {
     println("loading districts data...")
     val timeStart = currentTimeMillis()
 
-    val districts = loadDistrictsGaodeParallel(Paths.get("scripts/districts"))
+    val districts = loadDistrictsParallel(Paths.get("scripts/districts"))
     val timeDistrictsLoaded = currentTimeMillis()
     println("time loading districts: ${timeDistrictsLoaded - timeStart}")
 

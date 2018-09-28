@@ -11,7 +11,7 @@ import java.util.List;
 public class Example {
     public static void main(String[] args) {
         System.out.println("loading districts data...");
-        List<District> districts  = UtilsKt.loadDistrictsGaode(Paths.get("scripts/districts"));
+        List<District> districts  = UtilsKt.loadDistricts(Paths.get("scripts/districts"));
         IGeoLocator    geoLocator = new HashingLocator(districts );
         System.out.println("done\n");
 

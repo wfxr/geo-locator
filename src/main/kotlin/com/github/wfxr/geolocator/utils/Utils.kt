@@ -8,39 +8,45 @@ import com.github.wfxr.geolocator.Boundary
 import com.github.wfxr.geolocator.District
 import com.github.wfxr.geolocator.WGSPoint
 import com.google.gson.JsonParser
-import java.io.File
+import java.io.Reader
 import java.nio.file.Path
 import kotlin.streams.toList
 
-fun loadDistrictsGaode(path: Path) =
+fun loadDistricts(items: List<String>) =
+        items.map { loadDistrict(it.reader().buffered()) }
+            .flatten()
+
+fun loadDistrictsParallel(items: List<String>): List<District> =
+        items.parallelStream()
+            .map { loadDistrict(it.reader().buffered()) }
+            .flatMap { it.stream() }
+            .toList()
+
+fun loadDistricts(path: Path) =
         path.toFile()
             .walk()
             .filter { it.isFile }
-            .map(::loadDistrictGaode)
+            .map { loadDistrict(it.bufferedReader()) }
             .flatten()
             .toList()
 
-fun loadDistrictsGaodeParallel(path: Path) =
+fun loadDistrictsParallel(path: Path): List<District> =
         path.toFile()
             .walk()
             .filter { it.isFile }
             .toList().parallelStream()
-            .map(::loadDistrictGaode)
+            .map { loadDistrict(it.bufferedReader()) }
             .flatMap { it.stream() }
             .toList()
 
-private fun loadDistrictGaode(file: File) =
-        try {
-            val root = JsonParser().parse(file.bufferedReader()).obj
-            val adcode = root["adcode"].string.toInt()
-            val name = root["name"].string.trim()
-            val center = root["center"].string.parseAsPointOrNull()
-            val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
-            regions.map { District(adcode, name, center, Boundary(it)) }
-        } catch (e: Exception) {
-            println(file.name)
-            throw e
-        }
+private fun loadDistrict(reader: Reader): List<District> {
+    val root = JsonParser().parse(reader).obj
+    val adcode = root["adcode"].string.toInt()
+    val name = root["name"].string.trim()
+    val center = root["center"].string.parseAsPointOrNull()
+    val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
+    return regions.map { District(adcode, name, center, Boundary(it)) }
+}
 
 private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { WGSPoint(it[1], it[0]) }
 private fun String.parseAsPoints() = this.split(";").map { it.parseAsPoint() }
