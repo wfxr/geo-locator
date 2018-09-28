@@ -11,11 +11,10 @@ interface IBoundary {
     fun contains(lat: Double, lon: Double): Boolean
 }
 
-data class Boundary(private val V: List<WGSPoint>) : IBoundary {
+class Boundary(private val V: List<WGSPoint>) : IBoundary {
     override val mbr: BoundingBox
     private val tree: RTree
     override val vertexes get() = V
-    private val edges = V.zipWithNext { a, b -> Rectangle(a.lat, a.lon, b.lat, b.lon) }
 
     init {
         val xMin = V.minBy { it.x }?.x ?: 0.0
@@ -24,7 +23,9 @@ data class Boundary(private val V: List<WGSPoint>) : IBoundary {
         val yMax = V.maxBy { it.y }?.y ?: 0.0
         mbr = BoundingBox(xMin, xMax, yMin, yMax)
         tree = RTree(4, 55)
-        edges.forEachIndexed { index, rectangle -> tree.add(rectangle, index) }
+
+        V.zipWithNext { a, b -> Rectangle(a.lat, a.lon, b.lat, b.lon) }
+            .forEachIndexed { index, rectangle -> tree.add(rectangle, index) }
     }
 
     private fun rTreeContains(lat: Double, lon: Double): Boolean {
