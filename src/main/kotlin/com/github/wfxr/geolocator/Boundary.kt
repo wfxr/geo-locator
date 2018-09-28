@@ -19,12 +19,12 @@ class Boundary : IBoundary {
     }
 
     internal fun init() {
-        val xMin = V.minBy { it.x }?.x ?: 0.0
-        val xMax = V.maxBy { it.x }?.x ?: 0.0
-        val yMin = V.minBy { it.y }?.y ?: 0.0
-        val yMax = V.maxBy { it.y }?.y ?: 0.0
+        val xMin = vertexes.minBy { it.x }?.x ?: 0.0
+        val xMax = vertexes.maxBy { it.x }?.x ?: 0.0
+        val yMin = vertexes.minBy { it.y }?.y ?: 0.0
+        val yMax = vertexes.maxBy { it.y }?.y ?: 0.0
         mbr = BoundingBox(xMin, xMax, yMin, yMax)
-        V.zipWithNext { a, b -> Rectangle(a.lat, a.lon, b.lat, b.lon) }
+        vertexes.zipWithNext { a, b -> Rectangle(a.lat, a.lon, b.lat, b.lon) }
             .forEachIndexed { index, rectangle -> rtree.add(rectangle, index) }
     }
 
@@ -33,14 +33,13 @@ class Boundary : IBoundary {
     override val vertexes: List<WGSPoint>
     override lateinit var mbr: BoundingBox
     private val rtree: RTree
-    private inline val V get() = vertexes
 
     private fun rTreeContains(lat: Double, lon: Double): Boolean {
         if (!mbr.contains(lat, lon)) return false
         var count = 0
         rtree.intersectsRightHalfLine(lat, lon) { i ->
-            val (lat1, lon1) = V[i]
-            val (lat2, lon2) = V[i + 1]
+            val (lat1, lon1) = vertexes[i]
+            val (lat2, lon2) = vertexes[i + 1]
             if (lon1 == lon2) {
                 ++count
             } else {
@@ -53,38 +52,6 @@ class Boundary : IBoundary {
             true
         }
         return count % 2 == 1
-    }
-
-    @Suppress("ConvertTwoComparisonsToRangeCheck")
-    private fun lineIntersects(A: WGSPoint, B: WGSPoint, C: WGSPoint, D: WGSPoint): Boolean {
-        val dxAB = B.x - A.x
-        val dyAB = B.y - A.y
-        val dxCD = D.x - C.x
-        val dyCD = D.y - C.y
-
-        val s = (-dyAB * (A.x - C.x) + dxAB * (A.y - C.y)) / (-dxCD * dyAB + dxAB * dyCD)
-        if (s >= 0 && s <= 1) return true
-
-        val t = (dxCD * (A.y - C.y) - dyCD * (A.x - C.x)) / (-dxCD * dyAB + dxAB * dyCD)
-        if (t >= 0 && t <= 1) return true
-
-        return false
-    }
-
-    private fun iterateContains(lat: Double, lon: Double): Boolean {
-        if (!mbr.contains(lat, lon)) return false
-
-        var res = false
-        var i = 0
-        var j = V.size - 1
-        val x = lat
-        val y = lon
-        while (i < V.size) {
-            if (V[i].y > y != V[j].y > y && x < (V[j].x - V[i].x) * (y - V[i].y) / (V[j].y - V[i].y) + V[i].x)
-                res = !res
-            j = i++
-        }
-        return res
     }
 
     override fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
