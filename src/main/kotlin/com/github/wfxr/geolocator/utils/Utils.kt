@@ -8,50 +8,50 @@ import com.github.wfxr.geolocator.Boundary
 import com.github.wfxr.geolocator.District
 import com.github.wfxr.geolocator.WGSPoint
 import com.google.gson.JsonParser
+import java.io.File
 import java.io.Reader
 import java.nio.file.Path
+import java.util.stream.Stream
+import kotlin.streams.asStream
 import kotlin.streams.toList
 
+fun loadDistricts(path: Path) = loadDistricts(path.toFile())
+fun loadDistrictsParallel(path: Path) = loadDistrictsParallel(path.toFile())
+
 fun loadDistricts(items: List<String>) =
-        items.map { loadDistrict(it.reader().buffered()) }
-            .flatten()
+        loadDistrictsFromReaders(items.stream().map { it.reader() })
 
-fun loadDistrictsParallel(items: List<String>): List<District> =
-        items.parallelStream()
-            .map { loadDistrict(it.reader().buffered()) }
-            .flatMap { it.stream() }
-            .toList()
+fun loadDistrictsParallel(items: List<String>) =
+        loadDistrictsFromReaders(items.parallelStream().map { it.reader() })
 
-fun loadDistricts(path: Path) =
-        path.toFile()
-            .walk()
-            .filter { it.isFile }
-            .map { loadDistrict(it.bufferedReader()) }
-            .flatten()
-            .toList()
+fun loadDistricts(file: File): List<District> {
+    require(file.exists()) { "File($file) not exist" }
+    val readers = file.walk().asStream().filter { it.isFile }.map { it.reader() }
+    return loadDistrictsFromReaders(readers)
+}
 
-fun loadDistrictsParallel(path: Path): List<District> =
-        path.toFile()
-            .walk()
-            .filter { it.isFile }
-            .toList().parallelStream()
-            .map { loadDistrict(it.bufferedReader()) }
-            .flatMap { it.stream() }
-            .toList()
+fun loadDistrictsParallel(file: File): List<District> {
+    require(file.exists()) { "File($file) not exist" }
+    val readers = file.walk().toList().parallelStream().filter { it.isFile }.map { it.reader() }
+    return loadDistrictsFromReaders(readers)
+}
+
+fun loadDistrictsFromReaders(readers: Stream<out Reader>) =
+        readers.flatMap { loadDistrict(it).stream() }.toList()
 
 private fun loadDistrict(reader: Reader): List<District> {
-    val root = JsonParser().parse(reader).obj
+    val root = JsonParser().parse(reader.buffered()).obj
     val adcode = root["adcode"].string.toInt()
     val name = root["name"].string.trim()
-    val center = root["center"].string.parseAsPointOrNull()
+    val center = root["center"].string.tryParseAsPoint()
     val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
     return regions.map { District(adcode, name, center, Boundary(it)) }
 }
 
-private fun String.parseAsPoint() = this.split(",").map { it.toDouble() }.let { WGSPoint(it[1], it[0]) }
-private fun String.parseAsPoints() = this.split(";").map { it.parseAsPoint() }
-private fun String.parseAsPointOrNull() = try {
-    this.split(",").map { it.toDouble() }.let { WGSPoint(it[1], it[0]) }
+private fun String.parseAsPoints() = split(";").map { it.parseAsPoint() }
+private fun String.parseAsPoint() = split(",").map { it.toDouble() }.let { (lon, lat) -> WGSPoint(lat, lon) }
+private fun String.tryParseAsPoint() = try {
+    parseAsPoint()
 } catch (e: Exception) {
     null
 }
