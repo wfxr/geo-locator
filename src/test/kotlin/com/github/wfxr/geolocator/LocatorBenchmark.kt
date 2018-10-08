@@ -15,7 +15,6 @@ import kotlin.system.measureTimeMillis
 internal abstract class LocatorBenchmarkBase : TestBase() {
     companion object {
         private const val COUNT = 100_000_0
-        private const val CONCURRENCY = 4
         private val rand = Random(COUNT.toLong())
 
         @Suppress("unused")
@@ -71,6 +70,7 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         val groupSize = COUNT / CONCURRENCY
         val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
 
+        println("Concurrency: $CONCURRENCY")
         bench(remark) {
             val latch = CountDownLatch(CONCURRENCY)
             groups.forEach { (lats, lons) ->
@@ -89,6 +89,7 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         val groupSize = COUNT / CONCURRENCY
         val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
 
+        println("Concurrency: $CONCURRENCY")
         bench(remark) {
             val latch = CountDownLatch(CONCURRENCY)
             groups.forEach { (lats, lons) ->

@@ -34,9 +34,10 @@ internal abstract class LocatorTestBase : TestBase() {
 
             Arguments.of(110108, 39.8981479502, 116.3225555420, "北京市北京市海淀区"),
             Arguments.of(110106, 39.8944274320, 116.3180494308, "北京市北京市丰台区"),
-            Arguments.of(110102, 39.8938018383, 116.3265466690, "北京市北京市西城区"))
+            Arguments.of(110102, 39.8938018383, 116.3265466690, "北京市北京市西城区"),
 
-        private const val CONCURRENCY = 8
+            Arguments.of(460400, 19.5409200000, 109.5919300000, "海南省儋州市"))
+
         val pool = Executors.newFixedThreadPool(CONCURRENCY)!!
     }
 
@@ -52,6 +53,7 @@ internal abstract class LocatorTestBase : TestBase() {
     @MethodSource("districtSample")
     fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
         val latch = CountDownLatch(CONCURRENCY)
+        println("Concurrency: $CONCURRENCY")
         repeat(CONCURRENCY) { _ ->
             pool.execute {
                 repeat(2000) {
@@ -77,6 +79,7 @@ internal abstract class LocatorTestBase : TestBase() {
     @MethodSource("districtSample")
     fun concurrentFastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
         val latch = CountDownLatch(CONCURRENCY)
+        println("Concurrency: $CONCURRENCY")
         repeat(CONCURRENCY) { _ ->
             pool.execute {
                 repeat(2000) {
@@ -105,5 +108,6 @@ internal class RTreeLocatorTest : LocatorTestBase() {
     companion object {
         val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
     }
+
     override val geoLocator = GeoLocator
 }
