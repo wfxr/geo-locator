@@ -73,8 +73,8 @@ class HashingLocator(private val districts: List<District>, private val hashLeve
 
     override fun fastLocate(lat: Double, lon: Double): District? {
         val candidates = possibleDistricts(lat, lon)
-        var remain = candidates.size
-        candidates.forEach { if (remain == 1 || it.contains(lat, lon)) return it else --remain }
+        val last = candidates.size - 1
+        candidates.forEachIndexed { i, item -> if (i == last || item.contains(lat, lon)) return item }
         return null
     }
 

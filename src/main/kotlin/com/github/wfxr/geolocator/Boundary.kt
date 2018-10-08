@@ -34,20 +34,18 @@ class Boundary : IBoundary {
     override lateinit var mbr: BoundingBox
     private val rtree: RTree
 
-    private fun rTreeContains(lat: Double, lon: Double): Boolean {
-        if (!mbr.contains(lat, lon)) return false
+    private fun rTreeContains(x: Double, y: Double): Boolean {
+        if (!mbr.contains(x, y)) return false
         var count = 0
-        rtree.intersectsRightHalfLine(lat, lon) { i ->
-            val (lat1, lon1) = vertexes[i]
-            val (lat2, lon2) = vertexes[i + 1]
-            if (lon1 == lon2) {
+        rtree.intersectsRightHalfLine(x, y) { i ->
+            val (x1, y1) = vertexes[i]
+            val (x2, y2) = vertexes[i + 1]
+            if (y1 == y2) {
                 ++count
             } else {
-                val m = (lat1 - lat2) * (lon - lon2)
-                val n = (lon1 - lon2) * (lat - lat2)
-
-                if (lon1 > lon2 && m >= n) ++count
-                if (lon1 < lon2 && m <= n) ++count
+                val m = (x1 - x2) * (y - y2)
+                val n = (y1 - y2) * (x - x2)
+                if (y1 > y2 && m >= n || y1 < y2 && m <= n) ++count
             }
             true
         }

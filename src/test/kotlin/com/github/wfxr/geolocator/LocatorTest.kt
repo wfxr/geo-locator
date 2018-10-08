@@ -48,7 +48,7 @@ internal abstract class LocatorTestBase : TestBase() {
         println("Concurrency: $CONCURRENCY")
         repeat(CONCURRENCY) { _ ->
             pool.execute {
-                repeat(2000) {
+                repeat(8000) {
                     val district = locateFunctor(lat, lon)
                     assertNotNull(district)
                     assertEquals(expectAdcode, district!!.adcode, remark)

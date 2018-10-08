@@ -48,8 +48,7 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         val groupSize = COUNT / CONCURRENCY
         val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
 
-        println("Concurrency: $CONCURRENCY")
-        bench(remark) {
+        bench("Concurrency: $CONCURRENCY - $remark") {
             val latch = CountDownLatch(CONCURRENCY)
             groups.forEach { (lats, lons) ->
                 pool.execute {
