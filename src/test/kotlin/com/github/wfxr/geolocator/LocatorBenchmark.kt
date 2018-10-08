@@ -13,6 +13,54 @@ import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
 internal abstract class LocatorBenchmarkBase : TestBase() {
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        benchLocate(remark, latRange, lonRange, geoLocator::locate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        benchLocate(remark, latRange, lonRange, geoLocator::fastLocate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchConcurrentLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        benchConcurrentLocate(remark, latRange, lonRange, geoLocator::locate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("geoRange")
+    fun benchConcurrentFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
+        benchConcurrentLocate(remark, latRange, lonRange, geoLocator::fastLocate)
+    }
+
+    private fun benchLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>, locateFunctor: LocateFunctor) {
+        val (lats, lons) = randPoints(latRange, lonRange, COUNT)
+        bench(remark) {
+            (0 until COUNT).forEach { locateFunctor(lats[it], lons[it]) }
+        }
+    }
+
+    private fun benchConcurrentLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>, locateFunctor: LocateFunctor) {
+        val groupSize = COUNT / CONCURRENCY
+        val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
+
+        println("Concurrency: $CONCURRENCY")
+        bench(remark) {
+            val latch = CountDownLatch(CONCURRENCY)
+            groups.forEach { (lats, lons) ->
+                pool.execute {
+                    (0 until groupSize).forEach { locateFunctor(lats[it], lons[it]) }
+                    latch.countDown()
+                }
+            }
+            latch.await()
+        }
+    }
+
     companion object {
         private const val COUNT = 100_000_0
         private val rand = Random(COUNT.toLong())
@@ -37,69 +85,13 @@ internal abstract class LocatorBenchmarkBase : TestBase() {
         private fun randPoints(latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>, count: Int) =
                 Pair(randDoubles(latRange.first, latRange.second, count), randDoubles(lonRange.first, lonRange.second, count))
 
-        val pool = Executors.newFixedThreadPool(4)!!
+        val pool = Executors.newFixedThreadPool(CONCURRENCY)!!
 
         private fun bench(remark: String, action: () -> Unit) {
             val time = measureTimeMillis(action)
             println("${time}ms, ${"%.2f/s".format(COUNT * 1000.0 / time)} - $remark")
         }
 
-    }
-
-    @ParameterizedTest
-    @MethodSource("geoRange")
-    fun benchLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        val (lats, lons) = randPoints(latRange, lonRange, COUNT)
-        bench(remark) {
-            (0 until COUNT).forEach { geoLocator.locate(lats[it], lons[it]) }
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("geoRange")
-    fun benchFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        val (lats, lons) = randPoints(latRange, lonRange, COUNT)
-        bench(remark) {
-            (0 until COUNT).forEach { geoLocator.fastLocate(lats[it], lons[it]) }
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("geoRange")
-    fun benchConcurrentFastLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        val groupSize = COUNT / CONCURRENCY
-        val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
-
-        println("Concurrency: $CONCURRENCY")
-        bench(remark) {
-            val latch = CountDownLatch(CONCURRENCY)
-            groups.forEach { (lats, lons) ->
-                pool.execute {
-                    (0 until groupSize).forEach { geoLocator.fastLocate(lats[it], lons[it]) }
-                    latch.countDown()
-                }
-            }
-            latch.await()
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("geoRange")
-    fun benchConcurrentLocate(remark: String, latRange: Pair<Double, Double>, lonRange: Pair<Double, Double>) {
-        val groupSize = COUNT / CONCURRENCY
-        val groups = (1..CONCURRENCY).map { randPoints(latRange, lonRange, groupSize) }
-
-        println("Concurrency: $CONCURRENCY")
-        bench(remark) {
-            val latch = CountDownLatch(CONCURRENCY)
-            groups.forEach { (lats, lons) ->
-                pool.execute {
-                    (0 until groupSize).forEach { geoLocator.locate(lats[it], lons[it]) }
-                    latch.countDown()
-                }
-            }
-            latch.await()
-        }
     }
 }
 
@@ -117,5 +109,6 @@ internal class RTreeLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
         val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
     }
+
     override val geoLocator = GeoLocator
 }

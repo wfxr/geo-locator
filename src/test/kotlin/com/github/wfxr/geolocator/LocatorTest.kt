@@ -13,6 +13,52 @@ import java.util.concurrent.Executors
 
 @Suppress("unused_parameter")
 internal abstract class LocatorTestBase : TestBase() {
+    @ParameterizedTest
+    @MethodSource("districtSample")
+    fun locate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        locate(expectAdcode, lat, lon, remark, geoLocator::locate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("districtSample")
+    fun fastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        locate(expectAdcode, lat, lon, remark, geoLocator::fastLocate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("districtSample")
+    fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        concurrentLocate(expectAdcode, lat, lon, remark, geoLocator::locate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("districtSample")
+    fun concurrentFastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
+        concurrentLocate(expectAdcode, lat, lon, remark, geoLocator::fastLocate)
+    }
+
+    private fun locate(expectAdcode: Int, lat: Double, lon: Double, remark: String, locateFunctor: LocateFunctor) {
+        val district = locateFunctor(lat, lon)
+        assertNotNull(district)
+        assertEquals(expectAdcode, district!!.adcode, remark)
+    }
+
+    private fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String, locateFunctor: LocateFunctor) {
+        val latch = CountDownLatch(CONCURRENCY)
+        println("Concurrency: $CONCURRENCY")
+        repeat(CONCURRENCY) { _ ->
+            pool.execute {
+                repeat(2000) {
+                    val district = locateFunctor(lat, lon)
+                    assertNotNull(district)
+                    assertEquals(expectAdcode, district!!.adcode, remark)
+                }
+                latch.countDown()
+            }
+        }
+        latch.await()
+    }
+
     companion object {
         @Suppress("unused")
         @JvmStatic
@@ -39,58 +85,6 @@ internal abstract class LocatorTestBase : TestBase() {
             Arguments.of(460400, 19.5409200000, 109.5919300000, "海南省儋州市"))
 
         val pool = Executors.newFixedThreadPool(CONCURRENCY)!!
-    }
-
-    @ParameterizedTest
-    @MethodSource("districtSample")
-    fun locate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
-        val district = geoLocator.locate(lat, lon)
-        assertNotNull(district)
-        assertEquals(expectAdcode, district!!.adcode, remark)
-    }
-
-    @ParameterizedTest
-    @MethodSource("districtSample")
-    fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
-        val latch = CountDownLatch(CONCURRENCY)
-        println("Concurrency: $CONCURRENCY")
-        repeat(CONCURRENCY) { _ ->
-            pool.execute {
-                repeat(2000) {
-                    val district = geoLocator.locate(lat, lon)
-                    assertNotNull(district)
-                    assertEquals(expectAdcode, district!!.adcode, remark)
-                }
-                latch.countDown()
-            }
-        }
-        latch.await()
-    }
-
-    @ParameterizedTest
-    @MethodSource("districtSample")
-    fun fastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
-        val district = geoLocator.fastLocate(lat, lon)
-        assertNotNull(district)
-        assertEquals(expectAdcode, district!!.adcode, remark)
-    }
-
-    @ParameterizedTest
-    @MethodSource("districtSample")
-    fun concurrentFastLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String) {
-        val latch = CountDownLatch(CONCURRENCY)
-        println("Concurrency: $CONCURRENCY")
-        repeat(CONCURRENCY) { _ ->
-            pool.execute {
-                repeat(2000) {
-                    val district = geoLocator.fastLocate(lat, lon)
-                    assertNotNull(district)
-                    assertEquals(expectAdcode, district!!.adcode, remark)
-                }
-                latch.countDown()
-            }
-        }
-        latch.await()
     }
 }
 

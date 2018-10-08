@@ -1,5 +1,7 @@
 package com.github.wfxr.geolocator
 
+typealias LocateFunctor = (Double, Double) -> District?
+
 internal abstract class TestBase {
     companion object {
         val CONCURRENCY = Runtime.getRuntime().availableProcessors() / 2 + 1
