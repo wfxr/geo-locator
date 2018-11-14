@@ -1,6 +1,6 @@
 package com.github.wfxr.geolocator
 
-typealias LocateFunctor = (Double, Double) -> District?
+typealias LocateFunctor = (Double, Double) -> Region?
 
 internal abstract class TestBase {
     companion object {

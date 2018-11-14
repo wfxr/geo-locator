@@ -1,6 +1,6 @@
 package com.github.wfxr.geolocator
 
-import com.github.wfxr.geolocator.utils.loadDistrictsParallel
+import com.github.wfxr.geolocator.utils.loadRegionsParallel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.params.ParameterizedTest
@@ -40,18 +40,20 @@ internal abstract class LocatorTestBase : TestBase() {
     private fun locate(expectAdcode: Int, lat: Double, lon: Double, remark: String, locateFunctor: LocateFunctor) {
         val district = locateFunctor(lat, lon)
         assertNotNull(district)
-        assertEquals(expectAdcode, district!!.adcode, remark)
+        val adTag = district!!.tag as AdTag
+        assertEquals(expectAdcode, adTag.adcode, remark)
     }
 
     private fun concurrentLocate(expectAdcode: Int, lat: Double, lon: Double, remark: String, locateFunctor: LocateFunctor) {
         val latch = CountDownLatch(CONCURRENCY)
         println("Concurrency: $CONCURRENCY")
-        repeat(CONCURRENCY) { _ ->
+        repeat(CONCURRENCY) {
             pool.execute {
                 repeat(8000) {
                     val district = locateFunctor(lat, lon)
                     assertNotNull(district)
-                    assertEquals(expectAdcode, district!!.adcode, remark)
+                    val adTag = district!!.tag as AdTag
+                    assertEquals(expectAdcode, adTag.adcode, remark)
                 }
                 latch.countDown()
             }
@@ -100,7 +102,7 @@ internal class HashingLocatorTest : LocatorTestBase() {
 
 internal class RTreeLocatorTest : LocatorTestBase() {
     companion object {
-        val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
+        val GeoLocator = RTreeLocator(loadRegionsParallel(Paths.get("scripts/districts")))
     }
 
     override val geoLocator = GeoLocator

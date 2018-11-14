@@ -1,6 +1,6 @@
 package com.github.wfxr.geolocator
 
-import com.github.wfxr.geolocator.utils.loadDistrictsParallel
+import com.github.wfxr.geolocator.utils.loadRegionsParallel
 import org.apache.commons.lang3.Validate
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -106,7 +106,7 @@ internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
 
 internal class RTreeLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
-        val GeoLocator = RTreeLocator(loadDistrictsParallel(Paths.get("scripts/districts")))
+        val GeoLocator = RTreeLocator(loadRegionsParallel(Paths.get("scripts/districts")))
     }
 
     override val geoLocator = GeoLocator

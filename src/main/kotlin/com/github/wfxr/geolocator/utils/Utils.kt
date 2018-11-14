@@ -4,8 +4,8 @@ import ch.hsr.geohash.BoundingBox
 import com.github.davidmoten.rtree.geometry.Geometries.rectangle
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
-import com.github.wfxr.geolocator.Boundary
-import com.github.wfxr.geolocator.District
+import com.github.wfxr.geolocator.AdTag
+import com.github.wfxr.geolocator.Region
 import com.github.wfxr.geolocator.WGSPoint
 import com.google.gson.JsonParser
 import java.io.File
@@ -15,37 +15,37 @@ import java.util.stream.Stream
 import kotlin.streams.asStream
 import kotlin.streams.toList
 
-fun loadDistricts(path: Path) = loadDistricts(path.toFile())
-fun loadDistrictsParallel(path: Path) = loadDistrictsParallel(path.toFile())
+fun loadRegions(path: Path) = loadRegions(path.toFile())
+fun loadRegionsParallel(path: Path) = loadRegionsParallel(path.toFile())
 
-fun loadDistricts(items: List<String>) =
-        loadDistrictsFromReaders(items.stream().map { it.reader() })
+fun loadRegions(items: List<String>) =
+        loadRegionsFromReaders(items.stream().map { it.reader() })
 
-fun loadDistrictsParallel(items: List<String>) =
-        loadDistrictsFromReaders(items.parallelStream().map { it.reader() })
+fun loadRegionsParallel(items: List<String>) =
+        loadRegionsFromReaders(items.parallelStream().map { it.reader() })
 
-fun loadDistricts(file: File): List<District> {
+fun loadRegions(file: File): List<Region> {
     require(file.exists()) { "File($file) not exist" }
     val readers = file.walk().asStream().filter { it.isFile }.map { it.reader() }
-    return loadDistrictsFromReaders(readers)
+    return loadRegionsFromReaders(readers)
 }
 
-fun loadDistrictsParallel(file: File): List<District> {
+fun loadRegionsParallel(file: File): List<Region> {
     require(file.exists()) { "File($file) not exist" }
     val readers = file.walk().toList().parallelStream().filter { it.isFile }.map { it.reader() }
-    return loadDistrictsFromReaders(readers)
+    return loadRegionsFromReaders(readers)
 }
 
-fun loadDistrictsFromReaders(readers: Stream<out Reader>) =
-        readers.flatMap { loadDistrict(it).stream() }.toList()
+fun loadRegionsFromReaders(readers: Stream<out Reader>) =
+        readers.flatMap { loadRegion(it).stream() }.toList()
 
-private fun loadDistrict(reader: Reader): List<District> {
+private fun loadRegion(reader: Reader): List<Region> {
     val root = JsonParser().parse(reader.buffered()).obj
     val adcode = root["adcode"].string.toInt()
     val name = root["name"].string.trim()
     val center = root["center"].string.tryParseAsPoint()
-    val regions = root["polyline"].string.split("|").map { it.parseAsPoints() }
-    return regions.map { District(adcode, name, center, Boundary(it)) }
+    val boundaries = root["polyline"].string.split("|").map { it.parseAsPoints() }
+    return boundaries.map { Region(it, AdTag(adcode, name, center)) }
 }
 
 private fun String.parseAsPoints() = split(";").map { it.parseAsPoint() }
@@ -61,13 +61,13 @@ fun BoundingBox.toRectangle() = rectangle(minLat, minLon, maxLat, maxLon)!!
 fun BoundingBox.contains(lat: Double, lon: Double) =
         lat >= minLat && lon >= minLon && lat <= maxLat && lon <= maxLon
 
-fun BoundingBox.vertexIn(district: District) =
+fun BoundingBox.vertexIn(district: Region) =
         district.contains(minLat, minLon) ||
         district.contains(minLat, maxLon) ||
         district.contains(maxLat, maxLon) ||
         district.contains(maxLat, minLon)
 
-fun District.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it.lon) }
+fun Region.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it.lon) }
 
-fun District.intersects(box: BoundingBox) =
+fun Region.intersects(box: BoundingBox) =
         box.intersects(this.mbr) && (box.vertexIn(this) || this.vertexIn(box))

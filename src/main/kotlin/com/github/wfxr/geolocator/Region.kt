@@ -5,16 +5,11 @@ import com.github.wfxr.geolocator.utils.contains
 import com.infomatiq.jsi.Rectangle
 import com.infomatiq.jsi.rtree.RTree
 
-interface IBoundary {
-    val mbr: BoundingBox
-    val vertexes: List<WGSPoint>
-    fun contains(lat: Double, lon: Double): Boolean
-}
-
-class Boundary : IBoundary {
-    internal constructor(vertexes: List<WGSPoint>, lazy: Boolean) {
+class Region {
+    internal constructor(vertexes: List<WGSPoint>, tag: Any, lazy: Boolean) {
         this.vertexes = vertexes
         this.rtree = RTree(4, 55)
+        this.tag = tag
         if (!lazy) init()
     }
 
@@ -28,10 +23,11 @@ class Boundary : IBoundary {
             .forEachIndexed { index, rectangle -> rtree.add(rectangle, index) }
     }
 
-    constructor(vertexes: List<WGSPoint>) : this(vertexes, false)
+    constructor(vertexes: List<WGSPoint>, tag: Any) : this(vertexes, tag, false)
 
-    override val vertexes: List<WGSPoint>
-    override lateinit var mbr: BoundingBox
+    val tag: Any
+    val vertexes: List<WGSPoint>
+    lateinit var mbr: BoundingBox
     private val rtree: RTree
 
     private fun rTreeContains(x: Double, y: Double): Boolean {
@@ -52,5 +48,5 @@ class Boundary : IBoundary {
         return count % 2 == 1
     }
 
-    override fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
+    fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
 }

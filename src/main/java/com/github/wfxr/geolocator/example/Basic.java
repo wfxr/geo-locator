@@ -1,6 +1,6 @@
 package com.github.wfxr.geolocator.example;
 
-import com.github.wfxr.geolocator.District;
+import com.github.wfxr.geolocator.Region;
 import com.github.wfxr.geolocator.HashingLocator;
 import com.github.wfxr.geolocator.IGeoLocator;
 import com.github.wfxr.geolocator.utils.UtilsKt;
@@ -11,8 +11,8 @@ import java.util.List;
 public class Basic {
     public static void main(String[] args) {
         System.out.println("loading districts data...");
-        List<District> districts  = UtilsKt.loadDistricts(Paths.get("scripts/districts"));
-        IGeoLocator    geoLocator = new HashingLocator(districts);
+        List<Region> regions    = UtilsKt.loadRegions(Paths.get("scripts/districts"));
+        IGeoLocator  geoLocator = new HashingLocator(regions);
         System.out.println("done\n");
 
         System.out.println(geoLocator.locate(36.8092847021, 103.4912109375)); // 中国甘肃省永登县
