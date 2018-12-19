@@ -33,12 +33,12 @@ Add dependency：
 ``` java
 List<Region> districts  = UtilsKt.loadRegionsParallel(Paths.get("path/to/districts/dir"));
 IGeoLocator  geoLocator = new HashingLocator(districts);
-System.out.println(geoLocator.locate(36.8092847021, 103.4912109375));
+geoLocator.locate(36.8092847021, 103.4912109375);
 ```
 
 ### Kotlin
 ``` kotlin
 val districts  = loadRegionsParallel(Paths.get("path/to/districts/dir"))
 val geoLocator = HashingLocator(districts)
-println(geoLocator.locate(36.8092847021, 103.4912109375))
+geoLocator.locate(36.8092847021, 103.4912109375)
 ```
