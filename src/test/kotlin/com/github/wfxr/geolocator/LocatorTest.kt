@@ -40,7 +40,7 @@ internal abstract class LocatorTestBase : TestBase() {
     private fun locate(expectAdcode: Int, lat: Double, lon: Double, remark: String, locateFunctor: LocateFunctor) {
         val district = locateFunctor(lat, lon)
         assertNotNull(district)
-        val adTag = district!!.tag as AdTag
+        val adTag = district!!.tag
         assertEquals(expectAdcode, adTag.adcode, remark)
     }
 
@@ -53,7 +53,7 @@ internal abstract class LocatorTestBase : TestBase() {
                     repeat(8000) {
                         val district = locateFunctor(lat, lon)
                         assertNotNull(district)
-                        val adTag = district!!.tag as AdTag
+                        val adTag = district!!.tag
                         assertEquals(expectAdcode, adTag.adcode, remark)
                     }
                 } finally {
@@ -98,7 +98,7 @@ internal class HashingLocatorTest : LocatorTestBase() {
     companion object {
         private const val LEVEL = 5
         private val path = Paths.get("scripts/hashing-locator-level-$LEVEL.dat")
-        val GeoLocator = HashingLocator.deserialize(Files.newInputStream(path), true)
+        val GeoLocator = HashingLocator.deserialize<AdTag>(Files.newInputStream(path), true)
     }
 
     override val geoLocator = GeoLocator

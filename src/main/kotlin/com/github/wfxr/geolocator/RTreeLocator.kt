@@ -6,10 +6,10 @@ import com.github.davidmoten.rtree.geometry.Rectangle
 import com.github.davidmoten.rtree.internal.EntryDefault
 import com.github.wfxr.geolocator.utils.toRectangle
 
-class RTreeLocator(districts: List<Region>) : IGeoLocator {
-    private val tree: RTree<Region, Rectangle> = RTree
+class RTreeLocator<T>(districts: List<Region<T>>) : IGeoLocator<T> {
+    private val tree: RTree<Region<T>, Rectangle> = RTree
         .star()
-        .create<Region, Rectangle>()
+        .create<Region<T>, Rectangle>()
         .add(districts.map { EntryDefault(it, it.mbr.toRectangle()) })
 
     private fun possibleRegions(lat: Double, lon: Double) =
@@ -21,7 +21,7 @@ class RTreeLocator(districts: List<Region>) : IGeoLocator {
     override fun locate(lat: Double, lon: Double) =
             possibleRegions(lat, lon).find { it.contains(lat, lon) }
 
-    override fun fastLocate(lat: Double, lon: Double): Region? {
+    override fun fastLocate(lat: Double, lon: Double): Region<T>? {
         val candidates = possibleRegions(lat, lon).toList()
         var remain = candidates.size
         candidates.forEach { if (remain == 1 || it.contains(lat, lon)) return it else --remain }

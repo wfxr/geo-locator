@@ -24,22 +24,22 @@ fun loadRegions(items: List<String>) =
 fun loadRegionsParallel(items: List<String>) =
         loadRegionsFromReaders(items.parallelStream().map { it.reader() })
 
-fun loadRegions(file: File): List<Region> {
+fun loadRegions(file: File): List<Region<AdTag>> {
     require(file.exists()) { "File($file) not exist" }
     val readers = file.walk().asStream().filter { it.isFile }.map { it.reader() }
     return loadRegionsFromReaders(readers)
 }
 
-fun loadRegionsParallel(file: File): List<Region> {
+fun loadRegionsParallel(file: File): List<Region<AdTag>> {
     require(file.exists()) { "File($file) not exist" }
     val readers = file.walk().toList().parallelStream().filter { it.isFile }.map { it.reader() }
     return loadRegionsFromReaders(readers)
 }
 
-fun loadRegionsFromReaders(readers: Stream<out Reader>) =
+fun loadRegionsFromReaders(readers: Stream<out Reader>): List<Region<AdTag>> =
         readers.flatMap { loadRegion(it).stream() }.toList()
 
-private fun loadRegion(reader: Reader): List<Region> {
+private fun loadRegion(reader: Reader): List<Region<AdTag>> {
     val root = JsonParser().parse(reader.buffered()).obj
     val adcode = root["adcode"].string.toInt()
     val name = root["name"].string.trim()
@@ -61,13 +61,13 @@ fun BoundingBox.toRectangle() = rectangle(minLat, minLon, maxLat, maxLon)!!
 fun BoundingBox.contains(lat: Double, lon: Double) =
         lat >= minLat && lon >= minLon && lat <= maxLat && lon <= maxLon
 
-fun BoundingBox.vertexIn(district: Region) =
+fun BoundingBox.vertexIn(district: Region<*>) =
         district.contains(minLat, minLon) ||
         district.contains(minLat, maxLon) ||
         district.contains(maxLat, maxLon) ||
         district.contains(maxLat, minLon)
 
-fun Region.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it.lon) }
+fun Region<*>.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it.lon) }
 
-fun Region.intersects(box: BoundingBox) =
+fun Region<*>.intersects(box: BoundingBox) =
         box.intersects(this.mbr) && (box.vertexIn(this) || this.vertexIn(box))

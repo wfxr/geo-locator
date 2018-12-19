@@ -23,7 +23,7 @@ Add dependency：
 <dependency>
     <groupId>com.github.wfxr</groupId>
     <artifactId>geo-locator</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 </dependency>
 ```
 
@@ -31,14 +31,20 @@ Add dependency：
 
 ### Java
 ``` java
-List<Region> districts  = UtilsKt.loadRegionsParallel(Paths.get("path/to/districts/dir"));
-IGeoLocator  geoLocator = new HashingLocator(districts);
-geoLocator.locate(36.8092847021, 103.4912109375);
+List<Region<AdTag>> regions    = UtilsKt.loadRegionsParallel(Paths.get("path/to/districts/dir"));
+IGeoLocator<AdTag>  geoLocator = new HashingLocator<>(regions);
+Region region = geoLocator.locate(36.8092847021, 103.4912109375);
+if (region != null) {
+    System.out.println(region.getTag());
+} else {
+    System.out.println("Not found");
+}
 ```
 
 ### Kotlin
 ``` kotlin
 val districts  = loadRegionsParallel(Paths.get("path/to/districts/dir"))
 val geoLocator = HashingLocator(districts)
-geoLocator.locate(36.8092847021, 103.4912109375)
+val region = geoLocator.locate(36.8092847021, 103.4912109375)
+println(region?.tag ?: "Not found")
 ```

@@ -5,8 +5,8 @@ import com.github.wfxr.geolocator.utils.contains
 import com.infomatiq.jsi.Rectangle
 import com.infomatiq.jsi.rtree.RTree
 
-class Region {
-    internal constructor(vertexes: List<WGSPoint>, tag: Any, lazy: Boolean) {
+class Region<T> {
+    internal constructor(vertexes: List<WGSPoint>, tag: T, lazy: Boolean) {
         this.vertexes = vertexes
         this.rtree = RTree(4, 55)
         this.tag = tag
@@ -23,9 +23,9 @@ class Region {
             .forEachIndexed { index, rectangle -> rtree.add(rectangle, index) }
     }
 
-    constructor(vertexes: List<WGSPoint>, tag: Any) : this(vertexes, tag, false)
+    constructor(vertexes: List<WGSPoint>, tag: T) : this(vertexes, tag, false)
 
-    val tag: Any
+    val tag: T
     val vertexes: List<WGSPoint>
     lateinit var mbr: BoundingBox
     private val rtree: RTree

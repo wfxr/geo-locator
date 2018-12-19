@@ -98,7 +98,7 @@ internal class HashingLocatorBenchmark : LocatorBenchmarkBase() {
     companion object {
         private const val LEVEL = 5
         private val path = Paths.get("scripts/hashing-locator-level-$LEVEL.dat")
-        val GeoLocator = HashingLocator.deserialize(Files.newInputStream(path), true)
+        val GeoLocator = HashingLocator.deserialize<AdTag>(Files.newInputStream(path), true)
     }
 
     override val geoLocator = GeoLocator
