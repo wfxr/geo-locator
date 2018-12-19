@@ -49,13 +49,16 @@ internal abstract class LocatorTestBase : TestBase() {
         println("Concurrency: $CONCURRENCY")
         repeat(CONCURRENCY) {
             pool.execute {
-                repeat(8000) {
-                    val district = locateFunctor(lat, lon)
-                    assertNotNull(district)
-                    val adTag = district!!.tag as AdTag
-                    assertEquals(expectAdcode, adTag.adcode, remark)
+                try {
+                    repeat(8000) {
+                        val district = locateFunctor(lat, lon)
+                        assertNotNull(district)
+                        val adTag = district!!.tag as AdTag
+                        assertEquals(expectAdcode, adTag.adcode, remark)
+                    }
+                } finally {
+                    latch.countDown()
                 }
-                latch.countDown()
             }
         }
         latch.await()
@@ -84,7 +87,8 @@ internal abstract class LocatorTestBase : TestBase() {
             Arguments.of(110106, 39.8944274320, 116.3180494308, "北京市北京市丰台区"),
             Arguments.of(110102, 39.8938018383, 116.3265466690, "北京市北京市西城区"),
 
-            Arguments.of(460400, 19.5409200000, 109.5919300000, "海南省儋州市"))
+            Arguments.of(460400, 19.5409200000, 109.5919300000, "海南省儋州市"),
+            Arguments.of(310105, 31.2140750000, 121.4346470000, "中国上海市上海市长宁区"))
 
         val pool = Executors.newFixedThreadPool(CONCURRENCY)!!
     }

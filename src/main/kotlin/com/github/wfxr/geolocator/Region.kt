@@ -30,6 +30,7 @@ class Region {
     lateinit var mbr: BoundingBox
     private val rtree: RTree
 
+    @Suppress("unused")
     private fun rTreeContains(x: Double, y: Double): Boolean {
         if (!mbr.contains(x, y)) return false
         var count = 0
@@ -48,5 +49,20 @@ class Region {
         return count % 2 == 1
     }
 
-    fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
+    @Suppress("unused")
+    private fun iterateContains(x: Double, y: Double): Boolean {
+        if (!mbr.contains(x, y)) return false
+
+        var res = false
+        var i = 0
+        var j = vertexes.size - 1
+        while (i < vertexes.size) {
+            if (vertexes[i].y > y != vertexes[j].y > y && x < (vertexes[j].x - vertexes[i].x) * (y - vertexes[i].y) / (vertexes[j].y - vertexes[i].y) + vertexes[i].x)
+                res = !res
+            j = i++
+        }
+        return res
+    }
+
+    fun contains(lat: Double, lon: Double) = iterateContains(lat, lon)
 }
