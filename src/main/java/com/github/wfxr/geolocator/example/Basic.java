@@ -16,7 +16,7 @@ public class Basic {
         IGeoLocator<AdTag>  geoLocator = new HashingLocator<>(regions);
         System.out.println("done\n");
 
-        Region region = geoLocator.locate(36.8092847021, 103.4912109375); // 中国甘肃省永登县
+        Region<AdTag> region = geoLocator.locate(36.8092847021, 103.4912109375); // 中国甘肃省永登县
         if (region != null) {
             System.out.println(region.getTag());
         } else {

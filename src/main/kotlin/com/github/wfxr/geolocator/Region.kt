@@ -37,13 +37,9 @@ class Region<T> {
         rtree.intersectsRightHalfLine(x, y) { i ->
             val (x1, y1) = vertexes[i]
             val (x2, y2) = vertexes[i + 1]
-            if (y1 == y2) {
-                ++count
-            } else {
-                val m = (x1 - x2) * (y - y2)
-                val n = (y1 - y2) * (x - x2)
-                if (y1 > y2 && m >= n || y1 < y2 && m <= n) ++count
-            }
+            val m = (x1 - x2) * (y - y2)
+            val n = (y1 - y2) * (x - x2)
+            if ((y1 > y2 && m >= n || y1 < y2 && m <= n) && y != y2 && y1 != y2) ++count
             true
         }
         return count % 2 == 1
@@ -53,16 +49,16 @@ class Region<T> {
     private fun iterateContains(x: Double, y: Double): Boolean {
         if (!mbr.contains(x, y)) return false
 
-        var res = false
+        var res = 0
         var i = 0
         var j = vertexes.size - 1
         while (i < vertexes.size) {
             if (vertexes[i].y > y != vertexes[j].y > y && x < (vertexes[j].x - vertexes[i].x) * (y - vertexes[i].y) / (vertexes[j].y - vertexes[i].y) + vertexes[i].x)
-                res = !res
+                ++res
             j = i++
         }
-        return res
+        return res % 2 == 1
     }
 
-    fun contains(lat: Double, lon: Double) = iterateContains(lat, lon)
+    fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
 }
