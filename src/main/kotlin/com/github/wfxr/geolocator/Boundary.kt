@@ -79,5 +79,5 @@ data class Boundary(private val V: List<WGSPoint>) : IBoundary {
         return res
     }
 
-    override fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
+    override fun contains(lat: Double, lon: Double) = iterateContains(lat, lon)
 }
