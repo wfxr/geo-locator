@@ -5,7 +5,7 @@
 
 ## Overview
 
-This is a library for fast locating district by GPS coordinates.
+This is a library for fast locating region by GPS coordinates.
 
 ## Install
 
@@ -23,7 +23,7 @@ Add dependency：
 <dependency>
     <groupId>com.github.wfxr</groupId>
     <artifactId>geo-locator</artifactId>
-    <version>3.1.0</version>
+    <version>LATEST-VERSION</version>
 </dependency>
 ```
 
@@ -31,9 +31,9 @@ Add dependency：
 
 ### Java
 ``` java
-List<Region<AdTag>> regions    = UtilsKt.loadRegionsParallel(Paths.get("path/to/districts/dir"));
-IGeoLocator<AdTag>  geoLocator = new HashingLocator<>(regions);
-Region region = geoLocator.locate(36.8092847021, 103.4912109375);
+List<Region<AdTag>> regions = UtilsKt.loadRegionsParallel(Paths.get("path/to/regions/dir"));
+IGeoLocator<AdTag>  locator = new HashingLocator<>(regions);
+Region<Adtag>        region = locator.locate(36.8092847021, 103.4912109375);
 if (region != null) {
     System.out.println(region.getTag());
 } else {
@@ -43,8 +43,8 @@ if (region != null) {
 
 ### Kotlin
 ``` kotlin
-val districts  = loadRegionsParallel(Paths.get("path/to/districts/dir"))
-val geoLocator = HashingLocator(districts)
-val region = geoLocator.locate(36.8092847021, 103.4912109375)
+val regions = loadRegionsParallel(Paths.get("path/to/regions/dir"))
+val locator = HashingLocator(regions)
+val  region = locator.locate(36.8092847021, 103.4912109375)
 println(region?.tag ?: "Not found")
 ```
