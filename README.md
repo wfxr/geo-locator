@@ -1,6 +1,6 @@
 # Geo Locator Library
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://wfxr.mit-license.org/2018)
 [![Jitpack](https://jitpack.io/v/wfxr/geo-locator.svg)](https://jitpack.io/#wfxr/geo-locator)
 
 ## Overview
@@ -48,3 +48,7 @@ val locator = HashingLocator(regions)
 val  region = locator.locate(36.8092847021, 103.4912109375)
 println(region?.tag ?: "Not found")
 ```
+
+## License
+
+[MIT](https://wfxr.mit-license.org/2018) (c) Wenxuan Zhang
