@@ -4,9 +4,11 @@ import ch.hsr.geohash.BoundingBox
 import com.github.wfxr.geolocator.utils.contains
 import com.infomatiq.jsi.Rectangle
 import com.infomatiq.jsi.rtree.RTree
+import org.apache.commons.lang3.Validate
 
 class Region<T> {
     internal constructor(vertexes: List<WGSPoint>, tag: T, lazy: Boolean) {
+        Validate.isTrue(vertexes.first() == vertexes.last(), "region curve not closed")
         this.vertexes = vertexes
         this.rtree = RTree(4, 55)
         this.tag = tag
