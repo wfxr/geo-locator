@@ -20,15 +20,16 @@ class GeoHashRange(private val SW: GeoHash, private val NE: GeoHash) : ClosedRan
     override fun iterator() = GeoHashIterator(start, endInclusive)
 }
 
-class GeoHashIterator(SW: GeoHash, private val NE: GeoHash) : Iterator<GeoHash> {
+class GeoHashIterator(SW: GeoHash, NE: GeoHash) : Iterator<GeoHash> {
     private var currStart = SW
     private var curr = currStart
+    private val end = NE.easternNeighbour
 
-    override fun hasNext() = curr != NE
+    override fun hasNext() = curr != end
 
     override fun next(): GeoHash {
         val rs = curr
-        curr = if (curr.point.longitude >= NE.point.longitude) {
+        curr = if (curr.point.longitude >= end.point.longitude) {
             currStart = currStart.northernNeighbour
             currStart
         } else
