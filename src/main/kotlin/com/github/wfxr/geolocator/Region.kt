@@ -32,6 +32,7 @@ class Region<T> {
     lateinit var mbr: BoundingBox
     private val rtree: RTree
 
+    // TODO: Fix bug on Point (440305, 22.5240300000, 113.9247900000, "中国广东省深圳市南山区")
     @Suppress("unused")
     private fun rTreeContains(x: Double, y: Double): Boolean {
         if (!mbr.contains(x, y)) return false
@@ -62,5 +63,5 @@ class Region<T> {
         return res % 2 == 1
     }
 
-    fun contains(lat: Double, lon: Double) = rTreeContains(lat, lon)
+    fun contains(lat: Double, lon: Double) = iterateContains(lat, lon)
 }
