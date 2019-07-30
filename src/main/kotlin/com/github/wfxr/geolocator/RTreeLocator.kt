@@ -7,6 +7,8 @@ import com.github.davidmoten.rtree.internal.EntryDefault
 import com.github.wfxr.geolocator.utils.toRectangle
 
 class RTreeLocator<T>(districts: List<Region<T>>) : IGeoLocator<T> {
+    override fun locateAll(lat: Double, lon: Double): List<Region<T>> = possibleRegions(lat, lon).filter { it.contains(lat, lon) }
+
     private val tree: RTree<Region<T>, Rectangle> = RTree
         .star()
         .create<Region<T>, Rectangle>()

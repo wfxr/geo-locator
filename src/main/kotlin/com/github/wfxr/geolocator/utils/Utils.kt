@@ -69,5 +69,4 @@ fun BoundingBox.vertexIn(district: Region<*>) =
 
 fun Region<*>.vertexIn(mbr: BoundingBox) = vertexes.any { mbr.contains(it.lat, it.lon) }
 
-fun Region<*>.intersects(box: BoundingBox) =
-        box.intersects(this.mbr) && (box.vertexIn(this) || this.vertexIn(box))
+fun Region<*>.intersects(box: BoundingBox) = box.intersects(this.mbr)

@@ -15,6 +15,8 @@ import java.util.stream.Collectors
 
 
 class HashingLocator<T>(private val regions: List<Region<T>>, private val hashLevel: Int) : IGeoLocator<T> {
+    override fun locateAll(lat: Double, lon: Double): List<Region<T>> = possibleRegions(lat, lon).filter { it.contains(lat, lon) }
+
     constructor(districts: List<Region<T>>) : this(districts, 4)
 
     private val mbr = BoundingBox(regions.minBy { it.mbr.minLat }!!.mbr.minLat,
