@@ -37,7 +37,9 @@ fun loadRegionsParallel(file: File): List<Region<AdTag>> {
 }
 
 fun loadRegionsFromReaders(readers: Stream<out Reader>): List<Region<AdTag>> =
-        readers.flatMap { loadRegion(it).stream() }.toList()
+        readers.flatMap { reader ->
+            loadRegion(reader).stream().also { reader.close() }
+        }.toList()
 
 private fun loadRegion(reader: Reader): List<Region<AdTag>> {
     val root = JsonParser().parse(reader.buffered()).obj
